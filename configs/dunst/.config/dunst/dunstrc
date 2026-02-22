@@ -1,0 +1,75 @@
+# For defaults and description of each option, see the link bellow
+# https://github.com/dunst-project/dunst/blob/master/dunstrc
+
+[global]
+# Display
+    follow = mouse
+    width = 400
+    height = (0, 300)
+    origin = top-right
+    offset = (35, 35)
+    indicate_hidden = yes
+    notification_limit = 5
+    gap_size = 10
+    padding = 10
+    horizontal_padding = 10
+    sort = no
+    timeout = 10
+    
+# Progress bar
+    progress_bar_frame_width = 0
+    progress_bar_corner_radius = 3
+    
+# Style
+    frame_width = 2
+    frame_color = "#88C0D0" # nord_hl
+    separator_color = "#88C0D0" # nord_hl
+
+# Text
+    font = Inter 12
+    markup = full
+    format = "<small>%a</small>\n<b>%s</b>\n%b"
+    alignment = left
+    vertical_alignment = center
+    show_age_threshold = -1
+    hide_duplicate_count = false
+
+# Icon
+    icon_position = left
+    min_icon_size = 54
+    max_icon_size = 80
+    icon_path = /usr/share/icons/Arc/status/96:/usr/share/icons/Arc/status/symbolic
+    icon_corner_radius = 5
+
+# Misc/Advanced
+    dmenu = wofi --show drun --prompt 'Open with'
+    corner_radius = 10
+
+# Mouse
+    mouse_left_click = do_action, close_current
+    mouse_middle_click = close_all
+    mouse_right_click = close_current
+
+[urgency_low]
+    background = "#2E3440" # nord_bg
+    foreground = "#D8DEE9" # nord_fg
+    timeout = 5
+
+[urgency_normal]
+    background = "#2E3440" # nord_bg
+    foreground = "#D8DEE9" # nord_fg
+    timeout = 10
+
+[urgency_critical]
+    background = "#BF616A" # nord_red
+    foreground = "#ECEFF4" 
+    frame_color = "#ECEFF4"
+    timeout = 0
+
+# Rules
+    [fullscreen_delay_everything]
+    fullscreen = delay
+
+[fullscreen_show_critical]
+    msg_urgency = critical
+    fullscreen = show

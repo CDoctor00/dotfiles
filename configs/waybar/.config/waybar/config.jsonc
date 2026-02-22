@@ -1,0 +1,165 @@
+{
+  "layer": "top", // Waybar at top layer
+  "position": "top", // Waybar position (top|bottom|left|right)
+  "height": 30, // Waybar height (to be removed for auto height)
+  "spacing": 10, // Gaps between modules (4px)
+  "margin": "10 10 0 10",
+  "modules-left": ["hyprland/workspaces", "wlr/taskbar"],
+  "modules-center": ["clock"],
+  "modules-right": [
+    "group/resources",
+    "group/input",
+    "group/connections",
+    "group/system",
+  ],
+  "hyprland/workspaces": {
+    "format": "{icon}",
+    "on-click": "activate",
+    "sort-by-number": true,
+  },
+  "wlr/taskbar": {
+    "format": "{icon} {name}",
+    "icon-size": 20,
+    "icon-theme": "Numix-Circle",
+    "tooltip-format": "{title}",
+    "on-click": "activate",
+    "on-click-middle": "close",
+    "sort-by-app-id": true,
+  },
+  "clock": {
+    "format": "  {0:%H:%M:%S}     {0:%d %b %Y}",
+    "interval": 1,
+    "tooltip-format": "<tt><small>{calendar}</small></tt>",
+    "calendar": {
+      "mode": "months",
+      "mode-mon-col": 3,
+      "weeks-pos": "right",
+      "on-scroll": 1,
+      "on-click-right": "mode",
+      "format": {
+        "months": "<span color='#D8DEE9'><b>{}</b></span>",
+        "days": "<span color='#88C0D0'><b>{}</b></span>",
+        "weeks": "<span color='#A3BE8C'><b>W{}</b></span>",
+        "weekdays": "<span color='#ffcc66'><b>{}</b></span>",
+        "today": "<span color='#BF616A'><b><u>{}</u></b></span>",
+      },
+    },
+    "actions": {
+      "on-click-right": "mode",
+      "on-scroll-up": "shift_up",
+      "on-scroll-down": "shift_down",
+    },
+  },
+  "group/resources": {
+    "orientation": "horizontal",
+    "modules": [
+      "cpu",
+      "memory",
+      "custom/gpu",
+      "network#download",
+      "network#upload",
+    ],
+  },
+  "cpu": {
+    "format": "󰍛  {usage}%",
+    "tooltip": false,
+    "interval": 1,
+    "on-click": "kitty --title 'Btop' bash -c btop --preset 2",
+  },
+  "memory": {
+    "format": "󰘚  {percentage}%",
+    "tooltip": false,
+    "interval": 1,
+    "on-click": "kitty --title 'Btop' bash -c btop --preset 2",
+  },
+  "custom/gpu": {
+    "exec": "cat /sys/class/hwmon/hwmon3/device/gpu_busy_percent",
+    "format": "󰍹   {}%",
+    "return-type": "",
+    "tooltip": false,
+    "interval": 1,
+    "on-click": "kitty --title 'Btop' bash -c btop --preset 2",
+  },
+  "network#download": {
+    "interface": "enp14s0",
+    "format": "󰇚  {bandwidthDownBytes}",
+    "tooltip": false,
+    "interval": 1,
+    "on-click": "kitty --title 'Btop' bash -c btop --preset 2",
+  },
+  "network#upload": {
+    "interface": "enp14s0",
+    "format": "󰕒  {bandwidthUpBytes}",
+    "tooltip": false,
+    "interval": 1,
+    "on-click": "kitty --title 'Btop' bash -c btop --preset 2",
+  },
+  "group/input": {
+    "orientation": "horizontal",
+    "modules": ["bluetooth#mouse", "pulseaudio"],
+  },
+  "bluetooth#mouse": {
+    "format-connected-battery": "  {device_battery_percentage}%",
+    "format-device-preference": ["MX Master 3S"],
+    "tooltip-format": "{device_alias}",
+    "interval": 300,
+  },
+  "pulseaudio": {
+    "format": "{icon} {volume}%",
+    "format-icons": {
+      "headphone": " ",
+      "headset": " ",
+      "default": [" ", " "],
+    },
+    "on-click": "pavucontrol",
+  },
+  "group/connections": {
+    "orientation": "horizontal",
+    "modules": ["bluetooth", "network#ethernet", "network#wifi"],
+  },
+  "bluetooth": {
+    "format": "",
+    "tooltip-format": "{status}",
+    "tooltip-format-connected": "{num_connections} connected",
+    "on-click": "kitty --title 'Bluetui' bash -c bluetui",
+  },
+  "network#ethernet": {
+    "interface": "enp14s0",
+    "format": "",
+    "tooltip-format": "{ifname}",
+    "interval": 60,
+    "on-click": "kitty --title 'NetworkManager' bash -c nmtui",
+  },
+  "network#wifi": {
+    "interface": "wlan0",
+    "format": "",
+    "tooltip-format": "{ifname}: {essid} - ({signalStrength}%)",
+    "interval": 60,
+    "on-click": "kitty --title 'NetworkManager' bash -c nmtui",
+  },
+  "group/system": {
+    "orientation": "horizontal",
+    "modules": ["custom/nightshift", "battery", "custom/power"],
+  },
+  "custom/nightshift": {
+    "format": "",
+    "on-click": "~/.config/hypr/scripts/night_shift.sh",
+    "tooltip": false,
+  },
+  "battery": {
+    "bat": "BAT2",
+    "interval": 60,
+    "states": {
+      "warning": 30,
+      "critical": 15,
+    },
+    "format": "{capacity}% {icon}",
+    "format-icons": [" ", " ", " ", " ", " "],
+    "max-length": 25,
+  },
+  "custom/power": {
+    "format": " ",
+    "tooltip": false,
+    "on-click": "wlogout",
+  },
+}

@@ -1,0 +1,90 @@
+/* Nordic Palette Colors */
+@define-color nord_bg #2E3440;
+@define-color nord_fg #D8DEE9;
+@define-color nord_bg2 #3B4252;
+@define-color nord_hl #88C0D0;
+@define-color nord_hl2 #81A1C1;
+@define-color nord_red #BF616A;
+@define-color nord_grn #A3BE8C;
+
+* {
+  font-family: "Hack", "Font Awesome 6 Pro";
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  background: none;
+}
+
+window#waybar {
+  color: @nord_hl;
+  background-color: transparent;
+}
+
+tooltip {
+  background: rgba(59, 66, 82, 0.5); /* nord_bg2 */
+  border: 1px solid rgba(46, 52, 64, 0.5); /* nord_bg */
+}
+
+tooltip label {
+  color: @nord_fg;
+}
+
+/* #clock tooltip {
+  background: rgba(59, 66, 82, 1);
+  border: 1px solid rgba(46, 52, 64, 1);
+} */
+
+button {
+  color: @nord_bg;
+  background: @nord_hl;
+  opacity: 0.5;
+  border-radius: 10px;
+  padding: 0 5px;
+  margin: 5px;
+  font-weight: 500;
+}
+
+button.active,
+button:hover {
+  opacity: 1;
+}
+
+#taskbar button box label {
+  font-size: 0;
+  transition: font-size 0.3s;
+}
+
+#taskbar button.active box label {
+  font-size: 14px;
+}
+
+#workspaces,
+#taskbar,
+#clock,
+#resources,
+#input,
+#connections,
+#system {
+  background: @nord_bg;
+  border-radius: 10px;
+  padding: 0 10px;
+}
+
+#cpu,
+#memory,
+#custom-gpu,
+#network.download,
+#bluetooth,
+#connections #network,
+#battery {
+  margin-right: 10px;
+}
+
+#network.wifi {
+  margin-right: 0px;
+}
+
+#custom-nightshift {
+  margin-left: 5px;
+  margin-right: 15px;
+}
