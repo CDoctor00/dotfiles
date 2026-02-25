@@ -34,8 +34,8 @@ Visual choices and how to replicate them across the entire setup.
 | --------------------- | ------------------ | ---- |
 | GTK (UI general)      | Inter              | 11pt |
 | Waybar                | Hack               | 14px |
-| Rofi                  | Fira Code          | 12px |
-| Kitty (Terminal)      | Fira Code          | 14.0 |
+| Rofi                  | FiraCode Nerd Font | 12px |
+| Kitty (Terminal)      | FiraCode Nerd Font | 14.0 |
 | Dunst (Notifications) | Inter              | 12px |
 | Icons (Waybar)        | Font Awesome 6 Pro | —    |
 | Icons (Rofi taskbar)  | Numix-Circle       | —    |
@@ -182,7 +182,7 @@ button:hover {
 
 **Key settings:**
 
-- Font: Fira Code 12
+- Font: FiraCode Nerd Font 12
 - Window width: 700px
 - Border radius: 15px
 - Lines visible: 8
@@ -222,7 +222,7 @@ fg-alt: #88C0D0 (highlight)
 
 ## Kitty (Terminal)
 
-**Font:** Fira Code 14.0
+**Font:** FiraCode Nerd Font 14.0
 
 **Colors:**
 
