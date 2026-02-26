@@ -155,12 +155,11 @@ stow --dir=/home/user/coding/dotfiles/configs --target=/home/user -D <name>
 
 Managed via `scripts/system-files.conf`. Only modified files are tracked — the base SDDM theme is installed via AUR.
 
-| File             | Source in repo                                       | Installed to                                 |
-| ---------------- | ---------------------------------------------------- | -------------------------------------------- |
-| SDDM config      | `system/sddm/sddm.conf`                              | `/etc/sddm.conf`                             |
-| SDDM custom.conf | `system/sddm-theme/silent/configs/custom.conf`       | `/usr/share/sddm/themes/silent/configs/`     |
-| SDDM background  | `system/sddm-theme/silent/backgrounds/astronaut.png` | `/usr/share/sddm/themes/silent/backgrounds/` |
-| SDDM metadata    | `system/sddm-theme/silent/metadata.desktop`          | `/usr/share/sddm/themes/silent/`             |
+| File             | Source in repo                                 | Installed to                             |
+| ---------------- | ---------------------------------------------- | ---------------------------------------- |
+| SDDM config      | `system/sddm/sddm.conf`                        | `/etc/sddm.conf`                         |
+| SDDM custom.conf | `system/sddm-theme/silent/configs/custom.conf` | `/usr/share/sddm/themes/silent/configs/` |
+| SDDM metadata    | `system/sddm-theme/silent/metadata.desktop`    | `/usr/share/sddm/themes/silent/`         |
 
 ---
 
