@@ -106,10 +106,11 @@
   },
   "pulseaudio": {
     "format": "{icon} {volume}%",
+    "format-muted": "",
     "format-icons": {
       "headphone": " ",
       "headset": " ",
-      "default": [" ", " "],
+      "default": [" ", "  "],
     },
     "on-click": "pavucontrol",
   },

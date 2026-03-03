@@ -86,56 +86,13 @@ dotfiles/
 
 ---
 
-## How Stow works
-
-Each folder inside `configs/` is a **Stow package**. Its internal directory structure mirrors `$HOME` exactly, so Stow knows where to create the symlinks.
-
-```
-configs/hypr/.config/hypr/hyprland.conf
-              ↕ symlink created by stow
-~/.config/hypr/hyprland.conf
-```
-
-Any edit to `~/.config/hypr/hyprland.conf` is immediately reflected in the repo — no manual sync needed.
-
-### Adding a new package
-
-When you want to start tracking a new application's config:
-
-```bash
-# 1. Create the stow package structure inside configs/
-mkdir -p ~/coding/dotfiles/configs/<name>/.config/<name>
-
-# 2. Move the existing config from the system into the repo
-mv ~/.config/<name> ~/coding/dotfiles/configs/<name>/.config/
-
-# 3. Create the symlink with stow
-stow --dir=/home/user/coding/dotfiles/configs --target=/home/user <name>
-
-# 4. Verify the symlink was created correctly
-ls -la ~/.config/<name>
-# Expected: ~/.config/<name> -> /home/user/coding/dotfiles/configs/<name>/.config/<name>
-```
-
-For files that live directly in `$HOME` (like `.bashrc`):
-
-```bash
-mkdir -p ~/coding/dotfiles/configs/<name>
-mv ~/.<name>rc ~/coding/dotfiles/configs/<name>/.<name>rc
-stow --dir=/home/user/coding/dotfiles/configs --target=/home/user <name>
-```
-
-### Removing a package from stow
-
-To remove symlinks without deleting files from the repo:
-
-```bash
-stow --dir=/home/user/coding/dotfiles/configs --target=/home/user -D <name>
-```
-
----
-
 ## Managed configurations
+
+Configurations are managed in two different ways depending on where they live on the system. User-space configs (under `$HOME`) are handled with **GNU Stow**, which creates symlinks so that any edit is immediately reflected in the repo. System-level files (under `/etc` or `/usr/share`) require root access and cannot be symlinked, so they are managed via **install/sync scripts** that copy files in both directions.
+
+### Inventory
+
+#### Stow packages
 
 | Package    | Source in repo                             | Links to                         |
 | ---------- | ------------------------------------------ | -------------------------------- |
@@ -151,7 +108,7 @@ stow --dir=/home/user/coding/dotfiles/configs --target=/home/user -D <name>
 | waybar     | `configs/waybar/.config/waybar/`           | `~/.config/waybar/`              |
 | wlogout    | `configs/wlogout/.config/wlogout/`         | `~/.config/wlogout/`             |
 
-### System files (require sudo)
+#### System files
 
 Managed via `scripts/system-files.conf`. Only modified files are tracked — the base SDDM theme is installed via AUR.
 
@@ -179,6 +136,7 @@ yay -S --needed - < packages/aur-packages.txt
 ## Documentation
 
 - [`docs/keybindings.md`](docs/keybindings.md) — all Hyprland keybindings
+- [`docs/managing.md`](docs/managing.md) — how to add, remove and maintain configurations
 - [`docs/setup-guide.md`](docs/setup-guide.md) — step-by-step post Arch install guide
 - [`docs/theming.md`](docs/theming.md) — colors, fonts, GTK theme choices
 
