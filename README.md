@@ -58,6 +58,8 @@ dotfiles/
 │   └── wlogout/                    # → $HOME/.config/wlogout/
 │
 ├── system/                         # Files requiring root — installed via install.sh
+│   ├── pacman/
+│   │   └── pacman.conf             → /etc/pacman.conf
 │   ├── sddm/
 │   │   └── sddm.conf               → /etc/sddm.conf
 │   └── sddm-theme/
@@ -114,6 +116,7 @@ Managed via `scripts/system-files.conf`. Only modified files are tracked — the
 
 | File             | Source in repo                                 | Installed to                             |
 | ---------------- | ---------------------------------------------- | ---------------------------------------- |
+| Pacman config    | `system/pacman/pacman.conf`                    | `/etc/pacman.conf`                       |
 | SDDM config      | `system/sddm/sddm.conf`                        | `/etc/sddm.conf`                         |
 | SDDM custom.conf | `system/sddm-theme/silent/configs/custom.conf` | `/usr/share/sddm/themes/silent/configs/` |
 | SDDM metadata    | `system/sddm-theme/silent/metadata.desktop`    | `/usr/share/sddm/themes/silent/`         |
