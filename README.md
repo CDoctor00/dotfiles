@@ -138,6 +138,7 @@ yay -S --needed - < packages/aur-packages.txt
 
 ## Documentation
 
+- [`docs/applications.md`](docs/applications.md) — complete list of applications by category
 - [`docs/keybindings.md`](docs/keybindings.md) — all Hyprland keybindings
 - [`docs/managing.md`](docs/managing.md) — how to add, remove and maintain configurations
 - [`docs/setup-guide.md`](docs/setup-guide.md) — step-by-step post Arch install guide
