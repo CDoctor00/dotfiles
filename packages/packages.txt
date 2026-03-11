@@ -3,6 +3,7 @@ base
 base-devel
 bitwarden
 bluetui
+bluez-utils
 btop
 btrfs-progs
 cage
@@ -14,7 +15,6 @@ discord
 docker
 docker-compose
 dunst
-easyeffects
 edk2-shell
 efibootmgr
 fastfetch
@@ -26,6 +26,7 @@ gst-libav
 gst-plugins-ugly
 htop
 hyprland
+hyprlock
 hyprpaper
 hyprpolkitagent
 hyprshot
@@ -33,6 +34,8 @@ hyprsunset
 inter-font
 iwd
 kitty
+less
+libfreeaptx
 linux
 linux-firmware
 loupe
@@ -47,8 +50,12 @@ otf-font-awesome
 papirus-icon-theme
 patchelf
 pavucontrol
+pipewire-alsa
+pipewire-jack
+pipewire-pulse
 qbittorrent
 rofi
+sbc
 sddm
 smartmontools
 speedtest-cli
@@ -68,6 +75,7 @@ vulkan-radeon
 waybar
 wget
 wireless_tools
+wireplumber
 woff2-font-awesome
 xdg-desktop-portal-hyprland
 xdg-utils

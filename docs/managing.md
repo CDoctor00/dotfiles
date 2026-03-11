@@ -18,11 +18,11 @@ mkdir -p ~/coding/dotfiles/configs/<new_package>/.config/<new_package>
 mv ~/.config/<new_package> ~/coding/dotfiles/configs/<new_package>/.config/
 
 # 3. Create the symlink with stow
-stow --dir=/home/user/coding/dotfiles/configs --target=/home/user <new_package>
+stow --dir=/home/<user>/coding/dotfiles/configs --target=/home/<user> <new_package>
 
 # 4. Verify the symlink was created correctly
 ls -la ~/.config/<new_package>
-# Expected: ~/.config/<new_package> -> /home/user/coding/dotfiles/configs/<new_package>/.config/<new_package>
+# Expected: ~/.config/<new_package> -> /home/<user>/coding/dotfiles/configs/<new_package>/.config/<new_package>
 ```
 
 For files that live directly in `$HOME` (like `.bashrc`):
@@ -30,7 +30,7 @@ For files that live directly in `$HOME` (like `.bashrc`):
 ```bash
 mkdir -p ~/coding/dotfiles/configs/<new_package>
 mv ~/.<new_package>rc ~/coding/dotfiles/configs/<new_package>/.<new_package>rc
-stow --dir=/home/user/coding/dotfiles/configs --target=/home/user <new_package>
+stow --dir=/home/<user>/coding/dotfiles/configs --target=/home/<user> <new_package>
 ```
 
 ### Removing a package
@@ -38,7 +38,7 @@ stow --dir=/home/user/coding/dotfiles/configs --target=/home/user <new_package>
 To remove symlinks without deleting files from the repo:
 
 ```bash
-stow --dir=/home/user/coding/dotfiles/configs --target=/home/user -D <new_package>
+stow --dir=/home/<user>/coding/dotfiles/configs --target=/home/<user> -D <new_package>
 ```
 
 ---

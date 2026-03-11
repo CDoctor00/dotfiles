@@ -18,8 +18,8 @@ Personal configuration for Arch Linux with Hyprland as Wayland compositor based 
 **Rofi**
 ![Rofi](assets/screenshots/rofi.png)
 
-**Wlogout**
-![Wlogout](assets/screenshots/wlogout.png)
+**Power Menu**
+![Power Menu](assets/screenshots/powermenu.png)
 
 **Lock**
 ![Lock](assets/screenshots/lock.png)
@@ -54,8 +54,7 @@ dotfiles/
 │   ├── kitty/                      # → $HOME/.config/kitty/
 │   ├── rofi/                       # → $HOME/.config/rofi/
 │   ├── spicetify/                  # → $HOME/.config/spicetify/
-│   ├── waybar/                     # → $HOME/.config/waybar/
-│   └── wlogout/                    # → $HOME/.config/wlogout/
+│   └── waybar/                     # → $HOME/.config/waybar/
 │
 ├── system/                         # Files requiring root — installed via install.sh
 │   ├── pacman/
@@ -108,7 +107,6 @@ Configurations are managed in two different ways depending on where they live on
 | rofi       | `configs/rofi/.config/rofi/`               | `~/.config/rofi/`                |
 | spicetify  | `configs/spicetify/.config/spicetify/`     | `~/.config/spicetify/`           |
 | waybar     | `configs/waybar/.config/waybar/`           | `~/.config/waybar/`              |
-| wlogout    | `configs/wlogout/.config/wlogout/`         | `~/.config/wlogout/`             |
 
 #### System files
 

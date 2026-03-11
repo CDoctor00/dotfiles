@@ -72,11 +72,12 @@ Complete keybinding reference for the Hyprland window manager setup.
 
 ### Launchers & Programs
 
-| Binding        | Action              | Description                    |
-| -------------- | ------------------- | ------------------------------ |
-| `$mainMod + T` | `exec $terminal`    | Launch terminal (Kitty)        |
-| `$mainMod + A` | `exec $menu`        | Launch application menu (Rofi) |
-| `$mainMod + F` | `exec $fileManager` | Launch file manager (Thunar)   |
+| Binding             | Action              | Description                    |
+| ------------------- | ------------------- | ------------------------------ |
+| `$mainMod + T`      | `exec $terminal`    | Launch terminal (Kitty)        |
+| `$mainMod + A`      | `exec $menu`        | Launch application menu (Rofi) |
+| `$mainMod + ESCAPE` | `exec $powerMenu`   | Power menu (Rofi)              |
+| `$mainMod + F`      | `exec $fileManager` | Launch file manager (Thunar)   |
 
 ### Clipboard & Utilities
 
@@ -140,17 +141,17 @@ Complete keybinding reference for the Hyprland window manager setup.
 ### Most Used Shortcuts
 
 ```
-$mainMod + T       → Open Terminal
-$mainMod + A       → Open App Launcher
-$mainMod + F       → Open File Manager
-$mainMod + Q       → Close Window
-$mainMod + W       → Toggle Floating
-ALT + F4           → Close Window
-$mainMod + 1-9     → Switch Workspace
-$mainMod + SHIFT + 1-9 → Move to Workspace
-$mainMod + arrow   → Move Focus
-PRINT              → Take Screenshot
-$mainMod + V       → Clipboard History
+$mainMod + T            → Open Terminal
+$mainMod + A            → Open App Launcher
+$mainMod + F            → Open File Manager
+$mainMod + Q            → Close Window
+$mainMod + W            → Toggle Floating
+$mainMod + ESCAPE       → Open Power Menu
+$mainMod + 1-9          → Switch Workspace
+$mainMod + SHIFT + 1-9  → Move to Workspace
+$mainMod + arrow        → Move Focus
+$mainMod + V            → Clipboard History
+PRINT                   → Take Screenshot
 ```
 
 ---

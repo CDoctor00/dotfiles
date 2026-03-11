@@ -1,0 +1,20 @@
+/**
+ * Nordic color scheme for rofi
+ * Based on Nord/Nordic GTK theme palette
+ **/
+
+* {
+    /* Polar Night */
+    background:     #2e3440ff;
+    background-alt: #3b4252ff;
+    background-bar: #434c5eff;
+
+    /* Snow Storm */
+    foreground:     #d8dee9ff;
+    selected:       #eceff4ff;
+
+    /* Frost */
+    focus:          #88c0d0ff;
+    active:         #5e81acff;
+    urgent:         #bf616aff;
+}
