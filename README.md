@@ -46,6 +46,7 @@ dotfiles/
 │
 ├── configs/                        # Stow packages — all symlinked to $HOME
 │   ├── bash/                       # → $HOME/.bashrc, $HOME/.bash_profile
+│   ├── clipse/                     # → $HOME/.config/clipse/
 │   ├── dunst/                      # → $HOME/.config/dunst/
 │   ├── face/                       # → $HOME/.face
 │   ├── fontconfig/                 # → $HOME/.config/fontconfig/
@@ -98,6 +99,7 @@ Configurations are managed in two different ways depending on where they live on
 | Package    | Source in repo                             | Links to                         |
 | ---------- | ------------------------------------------ | -------------------------------- |
 | bash       | `configs/bash/.bashrc`, `.bash_profile`    | `~/.bashrc`, `~/.bash_profile`   |
+| clipse     | `configs/clipse/.config/clipse/`           | `~/.config/clipse/`              |
 | dunst      | `configs/dunst/.config/dunst/`             | `~/.config/dunst/`               |
 | face       | `configs/face/.face`                       | `~/.face`                        |
 | fontconfig | `configs/fontconfig/.config/fontconfig/`   | `~/.config/fontconfig/`          |

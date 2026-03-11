@@ -1,5 +1,6 @@
 arc-gtk-theme
 bluetuith
+clipse
 dropbox
 ebgaramond-otf
 insomnia
@@ -7,6 +8,5 @@ sddm-silent-theme
 spicetify-cli
 spotify
 visual-studio-code-bin
-wlogout
 xf86-video-vmware
 yay-bin

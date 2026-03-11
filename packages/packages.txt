@@ -9,7 +9,6 @@ btrfs-progs
 cage
 calf
 clblast
-cliphist
 dbeaver
 discord
 docker
