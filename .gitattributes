@@ -1,0 +1,28 @@
+# .gitattributes — GitHub Linguist overrides
+# Controls how GitHub detects and displays languages in the repo stats.
+# https://github.com/github-linguist/linguist
+
+# ── Rofi ─────────────────────────────────────────────────────────────────────
+# .rasi files are rofi theme files, not CSS.
+# Marked as vendored since most come from adi1090x's repo.
+*.rasi linguist-vendored
+
+# ── Config files ──────────────────────────────────────────────────────────────
+# Treat config files as documentation (excluded from language stats)
+*.conf linguist-language=INI
+*.ini  linguist-language=INI
+
+# ── Specific files─────────────────────────────────────────────────────────────
+configs/hypr/.config/hypr/hyprland.conf     linguist-language=Shell
+configs/hypr/.config/hypr/hyprpaper.conf    linguist-language=Shell
+configs/hypr/.config/hypr/hyprlock.conf     linguist-language=Shell
+configs/hypr/.config/hypr/hypridle.conf     linguist-language=Shell
+configs/dunst/.config/dunst/dunstrc         linguist-language=INI
+configs/waybar/.config/waybar/config        linguist-language=JSON
+system/sddm-theme/silent/metadata.desktop   linguist-language=INI
+
+# ── Documentation and utils ───────────────────────────────────────────────────
+packages/packages.txt       linguist-documentation
+packages/aur-packages.txt   linguist-documentation
+scripts/system-files.conf   linguist-documentation
+docs/*                      linguist-documentation
