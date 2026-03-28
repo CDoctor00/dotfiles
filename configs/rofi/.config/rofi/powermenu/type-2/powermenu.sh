@@ -26,20 +26,20 @@ rofi_cmd() {
 
 # Confirmation CMD
 confirm_cmd() {
-	rofi -theme-str 'window {location: center; anchor: center; fullscreen: false; width: 350px;}' \
+	rofi -theme-str 'window {location: center; anchor: center; fullscreen: false; width: 500px;}' \
 		-theme-str 'mainbox {children: [ "message", "listview" ];}' \
 		-theme-str 'listview {columns: 2; lines: 1;}' \
 		-theme-str 'element-text {horizontal-align: 0.5;}' \
 		-theme-str 'textbox {horizontal-align: 0.5;}' \
 		-dmenu \
 		-p 'Confirmation' \
-		-mesg 'Are you Sure?' \
+		-mesg "Are you sure you want to $1?" \
 		-theme ${dir}/${theme}.rasi
 }
 
 # Ask for confirmation
 confirm_exit() {
-	echo -e "$yes\n$no" | confirm_cmd
+	echo -e "$yes\n$no" | confirm_cmd "$1"
 }
 
 # Pass variables to rofi dmenu
@@ -49,7 +49,7 @@ run_rofi() {
 
 # Execute Command
 run_cmd() {
-	selected="$(confirm_exit)"
+	selected="$(confirm_exit "$2")"
 	if [[ "$selected" == "$yes" ]]; then
 		if [[ $1 == '--shutdown' ]]; then
 			systemctl poweroff
@@ -80,19 +80,19 @@ run_cmd() {
 # Actions
 chosen="$(run_rofi)"
 case ${chosen} in
-    $shutdown)
-		run_cmd --shutdown
-        ;;
-    $reboot)
-		run_cmd --reboot
-        ;;
-    $lock)
+	$shutdown)
+		run_cmd --shutdown "shutdown"
+		;;
+	$reboot)
+		run_cmd --reboot "reboot"
+		;;
+	$lock)
 		hyprlock
-        ;;
-    $suspend)
-		run_cmd --suspend
-        ;;
-    $logout)
-		run_cmd --logout
-        ;;
+		;;
+	$suspend)
+		run_cmd --suspend "suspend"
+		;;
+	$logout)
+		run_cmd --logout "logout"
+		;;
 esac
