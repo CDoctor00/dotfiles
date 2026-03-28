@@ -2,27 +2,31 @@
 # Controls how GitHub detects and displays languages in the repo stats.
 # https://github.com/github-linguist/linguist
 
-# ── Rofi ─────────────────────────────────────────────────────────────────────
-# .rasi files are rofi theme files, not CSS.
-# Marked as vendored since most come from adi1090x's repo.
-*.rasi linguist-vendored
+# ── Rofi ──────────────────────────────────────────────────────────────────────
+# .rasi files are Rofi theme files with CSS-like syntax.
+*.rasi linguist-language=CSS linguist-detectable=true
 
 # ── Config files ──────────────────────────────────────────────────────────────
-# Treat config files as documentation (excluded from language stats)
-*.conf linguist-language=INI
-*.ini  linguist-language=INI
+# Linguist to include these files in the language stats.
+*.conf linguist-language=INI linguist-detectable=true
+*.ini  linguist-language=INI linguist-detectable=true
 
-# ── Specific files─────────────────────────────────────────────────────────────
-configs/hypr/.config/hypr/hyprland.conf     linguist-language=Shell
-configs/hypr/.config/hypr/hyprpaper.conf    linguist-language=Shell
-configs/hypr/.config/hypr/hyprlock.conf     linguist-language=Shell
-configs/hypr/.config/hypr/hypridle.conf     linguist-language=Shell
-configs/dunst/.config/dunst/dunstrc         linguist-language=INI
-configs/waybar/.config/waybar/config        linguist-language=JSON
-system/sddm-theme/silent/metadata.desktop   linguist-language=INI
+# ── Hyprland configs ──────────────────────────────────────────────────────────
+# Hyprland uses an INI-like syntax, not Shell.
+configs/hypr/.config/hypr/hyprland.conf  linguist-language=INI linguist-detectable=true
+configs/hypr/.config/hypr/hyprpaper.conf linguist-language=INI linguist-detectable=true
+configs/hypr/.config/hypr/hyprlock.conf  linguist-language=INI linguist-detectable=true
+configs/hypr/.config/hypr/hypridle.conf  linguist-language=INI linguist-detectable=true
 
-# ── Documentation and utils ───────────────────────────────────────────────────
-packages/packages.txt       linguist-documentation
-packages/aur-packages.txt   linguist-documentation
-scripts/system-files.conf   linguist-documentation
-docs/*                      linguist-documentation
+# ── Extensionless files ────────────────────────────────────────────────────────
+configs/dunst/.config/dunst/dunstrc        linguist-language=INI  linguist-detectable=true
+configs/waybar/.config/waybar/config       linguist-language=JSON linguist-detectable=true
+system/sddm-theme/silent/metadata.desktop  linguist-language=INI  linguist-detectable=true
+
+# ── Documentation and assets ──────────────────────────────────────────────────
+# Exclude non-code files from language stats.
+packages/packages.txt      linguist-documentation=true
+packages/aur-packages.txt  linguist-documentation=true
+scripts/system-files.conf  linguist-documentation=true
+docs/*                     linguist-documentation=true
+assets/*                   linguist-documentation=true
