@@ -1,3 +1,4 @@
+7zip
 amd-ucode
 base
 base-devel
@@ -16,13 +17,16 @@ docker-compose
 dunst
 edk2-shell
 efibootmgr
+exfatprogs
 fastfetch
+file-roller
 firefox
 font-manager
 git
 go
 gst-libav
 gst-plugins-ugly
+gvfs
 htop
 hyprland
 hyprlock
@@ -43,6 +47,7 @@ network-manager-applet
 networkmanager
 noto-fonts
 noto-fonts-emoji
+ntfs-3g
 nwg-look
 obsidian
 otf-font-awesome
@@ -62,10 +67,13 @@ sqlitebrowser
 stow
 telegram-desktop
 thunar
+thunar-archive-plugin
+thunar-volman
 ttf-bitstream-vera
 ttf-firacode-nerd
 ttf-nerd-fonts-symbols
 ttf-nerd-fonts-symbols-mono
+unrar
 unzip
 vim
 vlc
@@ -82,4 +90,5 @@ xf86-video-amdgpu
 xf86-video-ati
 xorg-server
 xorg-xinit
+zip
 zram-generator
