@@ -7,6 +7,36 @@ Personal configuration for Arch Linux with Hyprland as Wayland compositor based 
 
 ---
 
+## Overview
+
+This repository contains all the configuration files for a fully customized Arch Linux desktop. The setup is built around consistency — every application from the terminal to the notification daemon follows the same Nordic palette and design language.
+
+**System:**
+
+| Component    | Choice              |
+| ------------ | ------------------- |
+| OS           | Arch Linux          |
+| Compositor   | Hyprland (Wayland)  |
+| Shell        | Bash                |
+| Terminal     | Kitty               |
+| Color scheme | Nordic (Nord-based) |
+
+**Key applications:**
+
+| Role              | Application                 |
+| ----------------- | --------------------------- |
+| App launcher      | rofi-wayland                |
+| Power menu        | rofi-wayland                |
+| Status bar        | Waybar                      |
+| Notifications     | Dunst                       |
+| Clipboard manager | Clipse                      |
+| Wallpaper         | Hyprpaper                   |
+| Lock screen       | Hyprlock                    |
+| Display manager   | SDDM with silent theme      |
+| File manager      | Thunar                      |
+| Text editor       | VSCode (synced via account) |
+| Browser           | Firefox                     |
+
 ## Screenshots
 
 **Clean**
@@ -23,6 +53,16 @@ Personal configuration for Arch Linux with Hyprland as Wayland compositor based 
 
 **Lock**
 ![Lock](assets/screenshots/lock.png)
+
+---
+
+## Documentation
+
+- [`docs/applications.md`](docs/applications.md) — complete list of applications by category
+- [`docs/keybindings.md`](docs/keybindings.md) — all Hyprland keybindings
+- [`docs/managing.md`](docs/managing.md) — how to add, remove and maintain configurations
+- [`docs/setup-guide.md`](docs/setup-guide.md) — step-by-step post Arch install guide
+- [`docs/theming.md`](docs/theming.md) — colors, fonts, GTK theme choices
 
 ---
 
@@ -75,7 +115,9 @@ dotfiles/
 │   └── aur-packages.txt            # AUR packages
 │
 ├── docs/
+│   ├── applications.md
 │   ├── keybindings.md
+│   ├── managing.md
 │   ├── setup-guide.md
 │   └── theming.md
 │
@@ -133,16 +175,6 @@ To install manually:
 sudo pacman -S --needed - < packages/packages.txt
 yay -S --needed - < packages/aur-packages.txt
 ```
-
----
-
-## Documentation
-
-- [`docs/applications.md`](docs/applications.md) — complete list of applications by category
-- [`docs/keybindings.md`](docs/keybindings.md) — all Hyprland keybindings
-- [`docs/managing.md`](docs/managing.md) — how to add, remove and maintain configurations
-- [`docs/setup-guide.md`](docs/setup-guide.md) — step-by-step post Arch install guide
-- [`docs/theming.md`](docs/theming.md) — colors, fonts, GTK theme choices
 
 ---
 
