@@ -1,5 +1,4 @@
 arc-gtk-theme
-bluetuith
 clipse
 dropbox
 ebgaramond-otf
@@ -9,4 +8,3 @@ spicetify-cli
 spotify
 visual-studio-code-bin
 xf86-video-vmware
-yay-bin

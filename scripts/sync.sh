@@ -1,30 +1,37 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  sync.sh — Update package lists from the current system
+#  sync.sh — Sync system state back into the repo
 #
-#  With Stow, config files are already symlinked into the repo — no need
-#  to copy them. This script only regenerates the package lists.
+#  With Stow, config files are already symlinked — no need to copy them.
+#  This script regenerates package lists and copies system-level files.
 #
-#  Usage: ./sync.sh
+#  Usage:
+#    ./sync.sh                  Full sync (packages + system files)
+#    ./sync.sh --packages-only  Only regenerate package lists
+#    ./sync.sh --system-only    Only copy system files into repo
 # =============================================================================
 
 set -euo pipefail
 
-DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PACKAGES_DIR="$DOTFILES_DIR/packages"
-SCRIPTS_DIR="$DOTFILES_DIR/scripts"
-SYSTEM_FILES_CONF="$SCRIPTS_DIR/system-files.conf"
-
+# ── Colors ────────────────────────────────────────────────────────────────────
+RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 BOLD='\033[1m'
 NC='\033[0m'
 
-ok()   { echo -e "${GREEN}[ OK ]${NC}  $*"; }
-warn() { echo -e "${YELLOW}[WARN]${NC}  $*"; }
-log()  { echo -e "${CYAN}[INFO]${NC}  $*"; }
-step() { echo -e "\n${BOLD}${CYAN}▶ $*${NC}"; }
+# ── Paths ─────────────────────────────────────────────────────────────────────
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PACKAGES_DIR="$DOTFILES_DIR/packages"
+SCRIPTS_DIR="$DOTFILES_DIR/scripts"
+SYSTEM_FILES_CONF="$SCRIPTS_DIR/system-files.conf"
+LOG_DIR="$DOTFILES_DIR/logs"
+LOG_FILE="$LOG_DIR/sync_$(date +%Y%m%d_%H%M%S).log"
+
+# AUR packages installed by the bootstrap process — excluded from aur-packages.txt
+AUR_EXCLUDE=(yay yay-bin paru paru-bin)
 
 # ── Flags ─────────────────────────────────────────────────────────────────────
 PACKAGES_ONLY=false
@@ -42,10 +49,24 @@ for arg in "$@"; do
   esac
 done
 
-# ── Load system files map ─────────────────────────────────────────────────────
+# ── Logging ───────────────────────────────────────────────────────────────────
+init_log() {
+  mkdir -p "$LOG_DIR"
+  echo "=== sync.sh — $(date '+%Y-%m-%d %H:%M:%S') ===" > "$LOG_FILE"
+  echo "" >> "$LOG_FILE"
+}
+
+# ── Helpers ───────────────────────────────────────────────────────────────────
+ok()    { local msg="[ OK ]  $*"; echo -e "${GREEN}${msg}${NC}";   echo "$msg" >> "$LOG_FILE"; }
+warn()  { local msg="[WARN]  $*"; echo -e "${YELLOW}${msg}${NC}";  echo "$msg" >> "$LOG_FILE"; }
+error() { local msg="[ERR ]  $*"; echo -e "${RED}${msg}${NC}" >&2; echo "$msg" >> "$LOG_FILE"; }
+log()   { local msg="[INFO]  $*"; echo -e "${BLUE}${msg}${NC}";    echo "$msg" >> "$LOG_FILE"; }
+step()  { local msg="▶ $*";       echo -e "\n${BOLD}${CYAN}${msg}${NC}"; echo -e "\n${msg}" >> "$LOG_FILE"; }
+
+# ── System files ──────────────────────────────────────────────────────────────
 load_system_files() {
   if [[ ! -f "$SYSTEM_FILES_CONF" ]]; then
-    warn "system-files.conf not found: $SYSTEM_FILES_CONF"
+    error "system-files.conf not found: $SYSTEM_FILES_CONF"
     exit 1
   fi
   mapfile -t SYSTEM_FILES < <(grep -v '^\s*#' "$SYSTEM_FILES_CONF" | grep -v '^\s*$')
@@ -58,14 +79,16 @@ sync_packages() {
 
   log "Generating packages/packages.txt..."
   if pacman -Qqen > "$PACKAGES_DIR/packages.txt"; then
-    ok "packages/packages.txt updated ($(wc -l < "$PACKAGES_DIR/packages.txt") packages)"
+    ok "packages.txt updated ($(wc -l < "$PACKAGES_DIR/packages.txt") packages)"
   else
     warn "Failed to generate packages.txt"
   fi
 
   log "Generating packages/aur-packages.txt..."
-  if pacman -Qqem > "$PACKAGES_DIR/aur-packages.txt"; then
-    ok "packages/aur-packages.txt updated ($(wc -l < "$PACKAGES_DIR/aur-packages.txt") packages)"
+  local exclude_pattern
+  exclude_pattern=$(printf '^%s$\n' "${AUR_EXCLUDE[@]}" | paste -sd'|')
+  if pacman -Qqem | grep -Ev "$exclude_pattern" > "$PACKAGES_DIR/aur-packages.txt"; then
+    ok "aur-packages.txt updated ($(wc -l < "$PACKAGES_DIR/aur-packages.txt") packages)"
   else
     warn "Failed to generate aur-packages.txt"
   fi
@@ -88,15 +111,39 @@ sync_system_files() {
 
     mkdir -p "$(dirname "$full_dest")"
     sudo cp "$system_path" "$full_dest"
-    # Fix ownership so git can track it
     sudo chown "$USER:$USER" "$full_dest"
     ok "$system_path → $repo_path"
   done
 }
 
+# ── Summary ───────────────────────────────────────────────────────────────────
+summary() {
+  echo ""
+  echo -e "${BOLD}${GREEN}════════════════════════════════════════${NC}"
+  echo -e "${BOLD}${GREEN}  Sync complete!${NC}"
+  echo -e "${BOLD}${GREEN}════════════════════════════════════════${NC}"
+  echo ""
+  echo -e "  ${CYAN}Next step:${NC}"
+  echo -e "  • ${BOLD}git add -A && git commit -m 'chore: sync'${NC}"
+  echo -e "  • Log saved to: ${YELLOW}$LOG_FILE${NC}"
+  echo ""
+}
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 main() {
-  echo -e "\n${BOLD}${CYAN}▶ Dotfiles sync${NC}\n"
+  clear
+  echo -e "${BOLD}${CYAN}"
+  echo "  ██████╗  ██████╗ ████████╗███████╗██╗██╗     ███████╗███████╗"
+  echo "  ██╔══██╗██╔═══██╗╚══██╔══╝██╔════╝██║██║     ██╔════╝██╔════╝"
+  echo "  ██║  ██║██║   ██║   ██║   █████╗  ██║██║     █████╗  ███████╗"
+  echo "  ██║  ██║██║   ██║   ██║   ██╔══╝  ██║██║     ██╔══╝  ╚════██║"
+  echo "  ██████╔╝╚██████╔╝   ██║   ██║     ██║███████╗███████╗███████║"
+  echo "  ╚═════╝  ╚═════╝    ╚═╝   ╚═╝     ╚═╝╚══════╝╚══════╝╚══════╝"
+  echo -e "${NC}"
+  echo -e "  ${BOLD}Arch + Hyprland dotfiles — cdoctor${NC}"
+  echo ""
+
+  init_log
 
   if $PACKAGES_ONLY; then
     sync_packages
@@ -107,10 +154,7 @@ main() {
     sync_system_files
   fi
 
-  echo ""
-  echo -e "${BOLD}${GREEN}Done!${NC}"
-  echo -e "Run: ${BOLD}git add -A && git commit -m 'chore: sync'${NC}"
-  echo ""
+  summary
 }
 
 main

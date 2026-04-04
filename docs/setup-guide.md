@@ -39,6 +39,8 @@ chmod +x install.sh sync.sh
 ./install.sh --dry-run          # preview without applying
 ```
 
+> After the installation, a log file is saved to logs/install\_<timestamp>.log. Check it if any step reported warnings or errors.
+
 ---
 
 ## 3. Enable services

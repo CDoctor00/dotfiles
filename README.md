@@ -84,6 +84,10 @@ chmod +x install.sh sync.sh
 ```
 dotfiles/
 │
+├── assets/
+│   ├── screenshots/
+│   └── wallpapers/
+│
 ├── configs/                        # Stow packages — all symlinked to $HOME
 │   ├── bash/                       # → $HOME/.bashrc, $HOME/.bash_profile
 │   ├── clipse/                     # → $HOME/.config/clipse/
@@ -96,6 +100,22 @@ dotfiles/
 │   ├── rofi/                       # → $HOME/.config/rofi/
 │   ├── spicetify/                  # → $HOME/.config/spicetify/
 │   └── waybar/                     # → $HOME/.config/waybar/
+│
+├── docs/
+│   ├── keybindings.md
+│   ├── setup-guide.md
+│   └── theming.md
+│
+├── logs/                           # Runtime logs — not tracked by git
+│
+├── packages/
+│   ├── packages.txt                # Official pacman packages
+│   └── aur-packages.txt            # AUR packages
+│
+├── scripts/
+│   ├── system-files.conf           # Shared map: repo path ↔ system path
+│   ├── install.sh                  # Full installer
+│   └── sync.sh                     # Sync system state back into the repo
 │
 ├── system/                         # Files requiring root — installed via install.sh
 │   ├── pacman/
@@ -201,3 +221,5 @@ git push
 
 git add -A && git commit -m "chore: sync"
 ```
+
+> After the syncing, a log file is saved to logs/sync\_<timestamp>.log. Check it if any step reported warnings or errors.

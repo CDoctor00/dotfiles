@@ -29,19 +29,14 @@ BACKUP_DIR="$HOME/.dotfiles-backup/$(date +%Y%m%d_%H%M%S)"
 PACKAGES_FILE="$DOTFILES_DIR/packages/packages.txt"
 AUR_PACKAGES_FILE="$DOTFILES_DIR/packages/aur-packages.txt"
 SYSTEM_FILES_CONF="$SCRIPTS_DIR/system-files.conf"
+LOG_DIR="$DOTFILES_DIR/logs"
+LOG_FILE="$LOG_DIR/install_$(date +%Y%m%d_%H%M%S).log"
 
 # Stow packages — all directories inside configs/
 STOW_PACKAGES=(bash dunst face fontconfig gtk hypr kitty rofi spicetify waybar wlogout)
 
-# System files are loaded from scripts/system-files.conf
-load_system_files() {
-  if [[ ! -f "$SYSTEM_FILES_CONF" ]]; then
-    error "system-files.conf not found: $SYSTEM_FILES_CONF"
-    exit 1
-  fi
-  # Read non-empty, non-comment lines
-  mapfile -t SYSTEM_FILES < <(grep -v '^\s*#' "$SYSTEM_FILES_CONF" | grep -v '^\s*$')
-}
+# AUR packages that are allowed to fail without blocking the installation
+NON_BLOCKING_AUR=(spicetify-cli)
 
 # ── Flags ─────────────────────────────────────────────────────────────────────
 PACKAGES_ONLY=false
@@ -63,12 +58,20 @@ for arg in "$@"; do
   esac
 done
 
+# ── Logging ───────────────────────────────────────────────────────────────────
+init_log() {
+  mkdir -p "$LOG_DIR"
+  echo "=== install.sh — $(date '+%Y-%m-%d %H:%M:%S') ===" > "$LOG_FILE"
+  echo "DRY_RUN=$DRY_RUN" >> "$LOG_FILE"
+  echo "" >> "$LOG_FILE"
+}
+
 # ── Helpers ───────────────────────────────────────────────────────────────────
-log()     { echo -e "${BLUE}[INFO]${NC}  $*"; }
-ok()      { echo -e "${GREEN}[ OK ]${NC}  $*"; }
-warn()    { echo -e "${YELLOW}[WARN]${NC}  $*"; }
-error()   { echo -e "${RED}[ERR ]${NC}  $*" >&2; }
-step()    { echo -e "\n${BOLD}${CYAN}▶ $*${NC}"; }
+ok()    { local msg="[ OK ]  $*"; echo -e "${GREEN}${msg}${NC}";   echo "$msg" >> "$LOG_FILE"; }
+warn()  { local msg="[WARN]  $*"; echo -e "${YELLOW}${msg}${NC}";  echo "$msg" >> "$LOG_FILE"; }
+error() { local msg="[ERR ]  $*"; echo -e "${RED}${msg}${NC}" >&2; echo "$msg" >> "$LOG_FILE"; }
+log()   { local msg="[INFO]  $*"; echo -e "${BLUE}${msg}${NC}";    echo "$msg" >> "$LOG_FILE"; }
+step()  { local msg="▶ $*";       echo -e "\n${BOLD}${CYAN}${msg}${NC}"; echo -e "\n${msg}" >> "$LOG_FILE"; }
 
 run() {
   if $DRY_RUN; then
@@ -100,6 +103,15 @@ check_stow() {
   fi
 }
 
+# ── System files ──────────────────────────────────────────────────────────────
+load_system_files() {
+  if [[ ! -f "$SYSTEM_FILES_CONF" ]]; then
+    error "system-files.conf not found: $SYSTEM_FILES_CONF"
+    exit 1
+  fi
+  mapfile -t SYSTEM_FILES < <(grep -v '^\s*#' "$SYSTEM_FILES_CONF" | grep -v '^\s*$')
+}
+
 # ── AUR helper ────────────────────────────────────────────────────────────────
 AUR_HELPER=""
 
@@ -126,7 +138,6 @@ install_packages() {
 
   step "Installing official packages"
   if [[ -f "$PACKAGES_FILE" ]]; then
-    # Strip comment lines before passing to pacman
     run "grep -v '^\s*#' '$PACKAGES_FILE' | grep -v '^\s*$' | sudo pacman -S --needed --noconfirm -"
     ok "Official packages installed."
   else
@@ -135,17 +146,41 @@ install_packages() {
 
   step "Installing AUR packages"
   detect_or_install_aur_helper
-  if [[ -f "$AUR_PACKAGES_FILE" ]]; then
-    run "grep -v '^\s*#' '$AUR_PACKAGES_FILE' | grep -v '^\s*$' | $AUR_HELPER -S --needed --noconfirm -"
-    ok "AUR packages installed."
-  else
+  if [[ ! -f "$AUR_PACKAGES_FILE" ]]; then
     warn "aur-packages.txt not found, skipping."
+    return
   fi
+
+  mapfile -t aur_pkgs < <(grep -v '^\s*#' "$AUR_PACKAGES_FILE" | grep -v '^\s*$')
+  for pkg in "${aur_pkgs[@]}"; do
+    # Check if this package is in the non-blocking list
+    local non_blocking=false
+    for nb in "${NON_BLOCKING_AUR[@]}"; do
+      [[ "$pkg" == "$nb" ]] && non_blocking=true && break
+    done
+
+    if $DRY_RUN; then
+      run "$AUR_HELPER -S --needed --noconfirm $pkg"
+    elif $non_blocking; then
+      if $AUR_HELPER -S --needed --noconfirm "$pkg" >> "$LOG_FILE" 2>&1; then
+        ok "AUR: $pkg"
+      else
+        warn "AUR: $pkg — failed (non-blocking). See $LOG_FILE"
+      fi
+    else
+      if $AUR_HELPER -S --needed --noconfirm "$pkg" >> "$LOG_FILE" 2>&1; then
+        ok "AUR: $pkg"
+      else
+        error "AUR: $pkg — failed"
+        exit 1
+      fi
+    fi
+  done
+  ok "AUR packages: done."
 }
 
 # ── Stow ──────────────────────────────────────────────────────────────────────
 backup_if_real() {
-  # If the target exists and is NOT already a symlink, back it up
   local target="$1"
   if [[ -e "$target" && ! -L "$target" ]]; then
     warn "Backing up: $target → $BACKUP_DIR/"
@@ -166,8 +201,7 @@ stow_packages() {
       continue
     fi
 
-    # Find potential conflicts and back them up before stowing
-    # (stow will refuse to overwrite real files)
+    # Back up any real files that would conflict with stow
     while IFS= read -r -d '' file; do
       local rel="${file#$pkg_dir/}"
       local target="$HOME/$rel"
@@ -205,12 +239,10 @@ install_system_files() {
     fi
 
     if [[ -d "$full_src" ]]; then
-      # Directory: copy recursively
       run sudo mkdir -p "$dest"
       run sudo cp -r "$full_src/." "$dest/"
       ok "Copied dir: $src → $dest"
     else
-      # File: copy with backup of existing
       if [[ -f "$dest" ]]; then
         run sudo cp "$dest" "${dest}.bak"
         warn "Backed up existing: ${dest}.bak"
@@ -231,7 +263,7 @@ install_scripts() {
     [[ -f "$script" ]] || continue
     run chmod +x "$script"
     run ln -sf "$script" "$HOME/.local/bin/$(basename "$script" .sh)"
-    ok "Available: $(basename "$script" .sh)"
+    ok "Linked: $(basename "$script" .sh)"
   done
 }
 
@@ -254,6 +286,7 @@ summary() {
   if [[ -d "$BACKUP_DIR" ]]; then
     echo -e "  • Old configs backed up to: ${YELLOW}$BACKUP_DIR${NC}"
   fi
+  echo -e "  • Log saved to: ${YELLOW}$LOG_FILE${NC}"
   echo ""
 }
 
@@ -271,7 +304,8 @@ main() {
   echo -e "  ${BOLD}Arch + Hyprland dotfiles — cdoctor${NC}"
   echo ""
 
-  $DRY_RUN && warn "DRY-RUN mode — no changes will be applied.\n"
+  init_log
+  $DRY_RUN && warn "DRY-RUN mode — no changes will be applied."
 
   check_arch
   check_not_root

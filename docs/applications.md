@@ -74,6 +74,7 @@ Complete list of applications used in this setup, grouped by category.
 | Application   | Package           | Description                             |
 | ------------- | ----------------- | --------------------------------------- |
 | Video Player  | `vlc`             | Primary video player with codec support |
+| Image Viewer  | `loupe`           | Image Viewer by GNOME suite             |
 | Music         | Spotify (AUR)     | Music streaming                         |
 | Spotify Theme | `spicetify` (AUR) | Spotify customization via Marketplace   |
 | Audio Control | `pavucontrol`     | PulseAudio/Pipewire volume control      |
