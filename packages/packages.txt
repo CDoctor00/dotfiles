@@ -48,7 +48,6 @@ networkmanager
 noto-fonts
 noto-fonts-emoji
 ntfs-3g
-nwg-look
 obsidian
 otf-font-awesome
 papirus-icon-theme

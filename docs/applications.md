@@ -18,7 +18,6 @@ Complete list of applications used in this setup, grouped by category.
 | Authentication      | `hyprpolkitagent` | Polkit authentication agent for Hyprland            |
 | Display Manager     | `sddm`            | Login manager with silent theme                     |
 | Logout Menu         | `rofi-wayland`    | Logout/power menu replacing wlogout                 |
-| GTK Theme Manager   | `nwg-look`        | GTK theme configuration for Wayland                 |
 
 ---
 

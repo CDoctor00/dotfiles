@@ -42,6 +42,26 @@ Visual choices and how to replicate them across the entire setup.
 
 ---
 
+## GTK Theme
+
+**Theme:** Arc  
+**Icons:** Papirus-Dark  
+**Cursor:** Adwaita
+
+GTK theming is managed entirely via configuration files — no GUI tool required.
+
+- `configs/gtk/.config/gtk-3.0/settings.ini` — GTK3 settings
+- `configs/gtk/.config/gtk-4.0/settings.ini` — GTK4 settings
+- `configs/hypr/.config/hypr/dconf/interface.conf` — dconf profile loaded at Hyprland startup
+
+The dconf profile is necessary because gsettings takes precedence over `settings.ini`. Without it, GTK falls back to the Adwaita default on a fresh install. The profile is loaded via `exec-once` in `hyprland.conf`:
+
+```ini
+exec-once = dconf load /org/gnome/desktop/interface/ < ~/.config/hypr/dconf/interface.conf
+```
+
+---
+
 ## Hyprland
 
 ### General Settings & Borders
@@ -183,6 +203,7 @@ button:hover {
 **Key settings:**
 
 - Font: FiraCode Nerd Font 12
+- Powermenu icons: Icomoon-Feather 32
 - Window width: 700px
 - Border radius: 15px
 - Lines visible: 8
@@ -267,7 +288,7 @@ exec-once = hyprpaper
 
 ## Environment Variables
 
-```bash
+```ini
 env = XCURSOR_SIZE,24
 env = HYPRCURSOR_SIZE,24
 env = HYPRSHOT_DIR,$HOME/Pictures/Screenshots
