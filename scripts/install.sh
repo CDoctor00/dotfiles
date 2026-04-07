@@ -33,7 +33,7 @@ LOG_DIR="$DOTFILES_DIR/logs"
 LOG_FILE="$LOG_DIR/install_$(date +%Y%m%d_%H%M%S).log"
 
 # Stow packages — all directories inside configs/
-STOW_PACKAGES=(bash dunst face fontconfig gtk hypr kitty rofi spicetify waybar wlogout)
+STOW_PACKAGES=(bash dunst face fontconfig fonts gtk hypr kitty rofi spicetify waybar wlogout)
 
 # AUR packages that are allowed to fail without blocking the installation
 NON_BLOCKING_AUR=(spicetify-cli)

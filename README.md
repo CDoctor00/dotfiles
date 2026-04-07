@@ -94,6 +94,7 @@ dotfiles/
 │   ├── dunst/                      # → $HOME/.config/dunst/
 │   ├── face/                       # → $HOME/.face
 │   ├── fontconfig/                 # → $HOME/.config/fontconfig/
+│   ├── fonts/                      # → $HOME/.local/share/fonts/
 │   ├── gtk/                        # → $HOME/.config/gtk-3.0/, gtk-4.0/
 │   ├── hypr/                       # → $HOME/.config/hypr/
 │   ├── kitty/                      # → $HOME/.config/kitty/
@@ -165,6 +166,7 @@ Configurations are managed in two different ways depending on where they live on
 | dunst      | `configs/dunst/.config/dunst/`             | `~/.config/dunst/`               |
 | face       | `configs/face/.face`                       | `~/.face`                        |
 | fontconfig | `configs/fontconfig/.config/fontconfig/`   | `~/.config/fontconfig/`          |
+| fonts      | `configs/fonts/.local/share/fonts`         | `~/.local/share/fonts/`          |
 | gtk        | `configs/gtk/.config/gtk-3.0/`, `gtk-4.0/` | `~/.config/gtk-3.0/`, `gtk-4.0/` |
 | hypr       | `configs/hypr/.config/hypr/`               | `~/.config/hypr/`                |
 | kitty      | `configs/kitty/.config/kitty/`             | `~/.config/kitty/`               |

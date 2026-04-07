@@ -35,10 +35,13 @@ Visual choices and how to replicate them across the entire setup.
 | GTK (UI general)      | Inter              | 11pt |
 | Waybar                | Hack               | 14px |
 | Rofi                  | FiraCode Nerd Font | 12px |
+| Rofi powermenu icons  | Icomoon-Feather    | 32px |
 | Kitty (Terminal)      | FiraCode Nerd Font | 14.0 |
 | Dunst (Notifications) | Inter              | 12px |
 | Icons (Waybar)        | Font Awesome 6 Pro | —    |
 | Icons (Rofi taskbar)  | Numix-Circle       | —    |
+
+Icomoon-Feather is not available on pacman or AUR — it is tracked directly in the repo under `configs/fonts/.local/share/fonts/` and linked via stow.
 
 ---
 
