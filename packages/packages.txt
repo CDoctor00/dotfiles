@@ -2,6 +2,7 @@
 amd-ucode
 base
 base-devel
+bat
 bitwarden
 bluetui
 bluez-utils
@@ -19,6 +20,7 @@ edk2-shell
 efibootmgr
 exfatprogs
 fastfetch
+fd
 file-roller
 firefox
 font-manager
@@ -57,6 +59,7 @@ pipewire-alsa
 pipewire-jack
 pipewire-pulse
 qbittorrent
+ripgrep
 rofi
 sbc
 sddm
