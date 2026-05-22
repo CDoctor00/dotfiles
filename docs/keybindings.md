@@ -1,10 +1,10 @@
-# Keybindings — Hyprland
+# Keybindings
 
-Complete keybinding reference for the Hyprland window manager setup.
+Complete keybinding reference for the system setup.
 
----
+## Hyprland
 
-## Modifier Keys
+### Modifier keys
 
 | Modifier   | Key                   |
 | ---------- | --------------------- |
@@ -12,154 +12,131 @@ Complete keybinding reference for the Hyprland window manager setup.
 | `ALT`      | Alt key               |
 | `SHIFT`    | Shift key             |
 
----
+### Applications
 
-## Window Management
+| Binding             | Action                                    |
+| ------------------- | ----------------------------------------- |
+| `$mainMod + T`      | Launch terminal (Kitty)                   |
+| `$mainMod + A`      | Launch app menu (Rofi)                    |
+| `$mainMod + ESCAPE` | Power menu (Rofi)                         |
+| `$mainMod + F`      | Launch file manager (Thunar)              |
+| `$mainMod + V`      | Open clipboard history (Clipse via Kitty) |
 
-### Focus & Navigation
+### Windows
 
-| Binding                          | Action      | Description                |
-| -------------------------------- | ----------- | -------------------------- |
-| `$mainMod + ←` / `↑` / `↓` / `→` | `movefocus` | Move focus between windows |
-| `$mainMod + left/right/up/down`  | `movefocus` | Move focus with arrow keys |
+| Binding                      | Action                            |
+| ---------------------------- | --------------------------------- |
+| `$mainMod + Q`               | Close active window               |
+| `ALT + F4`                   | Close active window (alternative) |
+| `ALT + Return`               | Toggle fullscreen                 |
+| `$mainMod + W`               | Toggle floating/tiling            |
+| `$mainMod + P`               | Toggle pseudo-tiling (dwindle)    |
+| `$mainMod + J`               | Toggle split direction (dwindle)  |
+| `$mainMod + ←/↑/↓/→`         | Move focus                        |
+| `$mainMod + SHIFT + ←/↑/↓/→` | Move window                       |
+| `$mainMod + CTRL + ←/↑/↓/→`  | Resize window (±30px)             |
+| `$mainMod + LMB drag`        | Move window (mouse)               |
+| `$mainMod + RMB drag`        | Resize window (mouse)             |
 
-### Window Actions
+### Workspaces
 
-| Binding        | Action           | Description                       |
-| -------------- | ---------------- | --------------------------------- |
-| `$mainMod + Q` | `killactive`     | Close active window               |
-| `ALT + F4`     | `killactive`     | Close active window (alternative) |
-| `$mainMod + W` | `togglefloating` | Toggle floating/tiling mode       |
-| `ALT + Return` | `fullscreen`     | Toggle fullscreen                 |
+| Binding                     | Action                        |
+| --------------------------- | ----------------------------- |
+| `$mainMod + 1`–`9`          | Switch to workspace 1–9       |
+| `$mainMod + 0`              | Switch to workspace 10        |
+| `$mainMod + scroll up/down` | Switch to next/prev workspace |
+| `$mainMod + SHIFT + 1`–`9`  | Move window to workspace 1–9  |
+| `$mainMod + SHIFT + 0`      | Move window to workspace 10   |
+| `$mainMod + S`              | Toggle scratchpad             |
+| `$mainMod + SHIFT + S`      | Move window to scratchpad     |
 
-### Layout Management
+### Screenshots
 
-| Binding        | Action        | Description                      |
-| -------------- | ------------- | -------------------------------- |
-| `$mainMod + P` | `pseudo`      | Toggle pseudo-tiling (dwindle)   |
-| `$mainMod + J` | `togglesplit` | Toggle split direction (dwindle) |
+| Binding            | Action                          |
+| ------------------ | ------------------------------- |
+| `$mainMod + PRINT` | Screenshot entire screen        |
+| `PRINT`            | Screenshot region (interactive) |
 
----
+### Volume
 
-## Workspace Management
+| Binding                | Action                 |
+| ---------------------- | ---------------------- |
+| `XF86AudioRaiseVolume` | Increase volume by 5%  |
+| `XF86AudioLowerVolume` | Decrease volume by 5%  |
+| `XF86AudioMute`        | Toggle mute            |
+| `XF86AudioMicMute`     | Toggle microphone mute |
 
-### Switch Workspaces
+### Brightness
 
-| Binding                  | Action           | Description                  |
-| ------------------------ | ---------------- | ---------------------------- |
-| `$mainMod + 1`-`9`       | `workspace`      | Switch to workspace 1-9      |
-| `$mainMod + 0`           | `workspace 10`   | Switch to workspace 10       |
-| `$mainMod + scroll up`   | `workspace, e+1` | Switch to next workspace     |
-| `$mainMod + scroll down` | `workspace, e-1` | Switch to previous workspace |
+| Binding                 | Action                     |
+| ----------------------- | -------------------------- |
+| `XF86MonBrightnessUp`   | Increase brightness by 10% |
+| `XF86MonBrightnessDown` | Decrease brightness by 10% |
 
-### Move Window to Workspace
+### Media (requires `playerctl`)
 
-| Binding                    | Action               | Description                  |
-| -------------------------- | -------------------- | ---------------------------- |
-| `$mainMod + SHIFT + 1`-`9` | `movetoworkspace`    | Move window to workspace 1-9 |
-| `$mainMod + SHIFT + 0`     | `movetoworkspace 10` | Move window to workspace 10  |
-
-### Special Workspace (Scratchpad)
-
-| Binding                | Action                           | Description               |
-| ---------------------- | -------------------------------- | ------------------------- |
-| `$mainMod + S`         | `togglespecialworkspace, magic`  | Toggle scratchpad         |
-| `$mainMod + SHIFT + S` | `movetoworkspace, special:magic` | Move window to scratchpad |
-
----
-
-## Applications
-
-### Launchers & Programs
-
-| Binding             | Action              | Description                    |
-| ------------------- | ------------------- | ------------------------------ |
-| `$mainMod + T`      | `exec $terminal`    | Launch terminal (Kitty)        |
-| `$mainMod + A`      | `exec $menu`        | Launch application menu (Rofi) |
-| `$mainMod + ESCAPE` | `exec $powerMenu`   | Power menu (Rofi)              |
-| `$mainMod + F`      | `exec $fileManager` | Launch file manager (Thunar)   |
-
-### Clipboard & Utilities
-
-| Binding        | Action     | Description                              |
-| -------------- | ---------- | ---------------------------------------- |
-| `$mainMod + V` | `cliphist` | Open clipboard history (Rofi + Cliphist) |
+| Binding          | Action         |
+| ---------------- | -------------- |
+| `XF86AudioNext`  | Next track     |
+| `XF86AudioPrev`  | Previous track |
+| `XF86AudioPlay`  | Play/pause     |
+| `XF86AudioPause` | Play/pause     |
 
 ---
 
-## Screenshots
+## Kitty
 
-| Binding            | Action               | Description                     |
-| ------------------ | -------------------- | ------------------------------- |
-| `$mainMod + PRINT` | `hyprshot -m output` | Screenshot entire screen        |
-| `PRINT`            | `hyprshot -m region` | Screenshot region (interactive) |
+### Font size
 
----
+| Binding    | Action             |
+| ---------- | ------------------ |
+| `Ctrl + =` | Increase font size |
+| `Ctrl + -` | Decrease font size |
+| `Ctrl + 0` | Reset font size    |
 
-## Media & System
+### Tabs
 
-### Volume Control
+| Binding                  | Action            |
+| ------------------------ | ----------------- |
+| `Ctrl + Shift + T`       | New tab           |
+| `Ctrl + Shift + Q`       | Close tab         |
+| `Ctrl + Shift + →`       | Next tab          |
+| `Ctrl + Shift + ←`       | Previous tab      |
+| `Ctrl + Shift + L`       | Next layout       |
+| `Ctrl + Shift + .`       | Move tab right    |
+| `Ctrl + Shift + ,`       | Move tab left     |
+| `Ctrl + Shift + Alt + T` | Set tab title     |
+| `Ctrl + Shift + 1`–`9`   | Switch to tab 1–9 |
 
-| Binding                | Action                  | Description            |
-| ---------------------- | ----------------------- | ---------------------- |
-| `XF86AudioRaiseVolume` | `wpctl set-volume`      | Increase volume by 5%  |
-| `XF86AudioLowerVolume` | `wpctl set-volume`      | Decrease volume by 5%  |
-| `XF86AudioMute`        | `wpctl set-mute toggle` | Toggle mute            |
-| `XF86AudioMicMute`     | `wpctl set-mute toggle` | Toggle microphone mute |
+### Windows (splits)
 
-### Brightness Control
+| Binding                | Action                           |
+| ---------------------- | -------------------------------- |
+| `Ctrl + Shift + Enter` | New window                       |
+| `Ctrl + Shift + W`     | Close window                     |
+| `Ctrl + Shift + ]`     | Next window                      |
+| `Ctrl + Shift + [`     | Previous window                  |
+| `Ctrl + Shift + F`     | Move window forward              |
+| `Ctrl + Shift + B`     | Move window backward             |
+| `Ctrl + Shift + R`     | Resize window (interactive mode) |
 
-| Binding                 | Action                 | Description                |
-| ----------------------- | ---------------------- | -------------------------- |
-| `XF86MonBrightnessUp`   | `brightnessctl s 10%+` | Increase brightness by 10% |
-| `XF86MonBrightnessDown` | `brightnessctl s 10%-` | Decrease brightness by 10% |
+### Basic
 
-### Media Playback (requires `playerctl`)
-
-| Binding          | Action                 | Description    |
-| ---------------- | ---------------------- | -------------- |
-| `XF86AudioNext`  | `playerctl next`       | Next track     |
-| `XF86AudioPrev`  | `playerctl previous`   | Previous track |
-| `XF86AudioPlay`  | `playerctl play-pause` | Play/pause     |
-| `XF86AudioPause` | `playerctl play-pause` | Play/pause     |
-
----
-
-## Mouse Bindings
-
-### Window Manipulation
-
-| Binding               | Action         | Description                           |
-| --------------------- | -------------- | ------------------------------------- |
-| `$mainMod + LMB drag` | `movewindow`   | Move window with left mouse button    |
-| `$mainMod + RMB drag` | `resizewindow` | Resize window with right mouse button |
-
----
-
-## Quick Reference
-
-### Most Used Shortcuts
-
-```
-$mainMod + T            → Open Terminal
-$mainMod + A            → Open App Launcher
-$mainMod + F            → Open File Manager
-$mainMod + Q            → Close Window
-$mainMod + W            → Toggle Floating
-$mainMod + ESCAPE       → Open Power Menu
-$mainMod + 1-9          → Switch Workspace
-$mainMod + SHIFT + 1-9  → Move to Workspace
-$mainMod + arrow        → Move Focus
-$mainMod + V            → Clipboard History
-PRINT                   → Take Screenshot
-```
+| Binding            | Action                       |
+| ------------------ | ---------------------------- |
+| `Ctrl + Shift + /` | Search forward               |
+| `Ctrl + Shift + E` | Open URL (keyboard hints)    |
+| `Ctrl + Shift + C` | Copy to clipboard            |
+| `Ctrl + Shift + V` | Paste from clipboard         |
+| `Ctrl + Shift + S` | Paste from selection         |
+| `Shift + Insert`   | Paste from primary selection |
 
 ---
 
 ## Notes
 
-- All `bindel` bindings repeat when held (volume, brightness)
-- All `bindl` bindings only trigger on key release (media keys)
-- The setup uses **Dwindle layout** as default
-- **Floating toggle** allows windows to float freely over the tiling layout
-- **Scratchpad** (`special:magic`) is useful for temporary floating windows
+- Hyprland `bindel` bindings (volume, brightness) repeat when held
+- Hyprland `bindl` bindings (media keys) trigger only on key release
+- Hyprland default layout is **Dwindle**
+- Kitty scrollback is piped through `bat` for syntax highlighting
+- Kitty remote control is enabled via unix socket (`/tmp/kitty`)
