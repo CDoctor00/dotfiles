@@ -19,6 +19,7 @@ dunst
 edk2-shell
 efibootmgr
 exfatprogs
+eza
 fastfetch
 fd
 file-roller
@@ -71,7 +72,6 @@ telegram-desktop
 thunar
 thunar-archive-plugin
 thunar-volman
-ttf-bitstream-vera
 ttf-firacode-nerd
 ttf-nerd-fonts-symbols
 ttf-nerd-fonts-symbols-mono

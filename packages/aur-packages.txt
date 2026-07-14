@@ -3,6 +3,7 @@ clipse
 dropbox
 ebgaramond-otf
 insomnia
+localsend-bin
 sddm-silent-theme
 spicetify-cli
 spotify

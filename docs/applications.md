@@ -6,18 +6,18 @@ Complete list of applications used in this setup, grouped by category.
 
 ## Desktop Environment
 
-| Application         | Package           | Description                                         |
-| ------------------- | ----------------- | --------------------------------------------------- |
-| Window Manager      | `hyprland`        | Wayland compositor with tiling and floating support |
-| Status Bar          | `waybar`          | Modular status bar for Wayland                      |
-| App Launcher        | `rofi-wayland`    | Application launcher using adi1090x type-2 style-1  |
-| Power Menu          | `rofi-wayland`    | Power menu using adi1090x type-2 style-7            |
-| Notification Daemon | `dunst`           | Lightweight notification manager                    |
-| Wallpaper           | `hyprpaper`       | Wallpaper manager for Hyprland                      |
-| Night Light         | `hyprsunset`      | Blue light filter (similar to redshift)             |
-| Authentication      | `hyprpolkitagent` | Polkit authentication agent for Hyprland            |
-| Display Manager     | `sddm`            | Login manager with silent theme                     |
-| Logout Menu         | `rofi-wayland`    | Logout/power menu replacing wlogout                 |
+| Application         | Package           | Description                                          |
+| ------------------- | ----------------- | ---------------------------------------------------- |
+| Window Manager      | `hyprland`        | Wayland compositor with tiling and floating support  |
+| Status Bar          | `waybar`          | Modular status bar for Wayland                       |
+| App Launcher        | `rofi-wayland`    | Application launcher (using adi1090x type-2 style-1) |
+| Power Menu          | `rofi-wayland`    | Power menu (using adi1090x type-2 style-7)           |
+| Notification Daemon | `dunst`           | Lightweight notification manager                     |
+| Wallpaper           | `hyprpaper`       | Wallpaper manager for Hyprland                       |
+| Night Light         | `hyprsunset`      | Blue light filter (similar to redshift)              |
+| Authentication      | `hyprpolkitagent` | Polkit authentication agent for Hyprland             |
+| Display Manager     | `sddm`            | Login manager with silent theme                      |
+| Logout Menu         | `rofi-wayland`    | Logout/power menu replacing wlogout                  |
 
 ---
 
@@ -47,12 +47,13 @@ Complete list of applications used in this setup, grouped by category.
 
 ## System Tools
 
-| Application       | Package        | Description                              |
-| ----------------- | -------------- | ---------------------------------------- |
-| File Manager      | `thunar`       | Graphical file manager                   |
-| Archive Manager   | `unzip`        | Archive extraction                       |
-| Clipboard Manager | `clipse` (AUR) | TUI clipboard manager with image preview |
-| Screenshot        | `hyprshot`     | Screenshot tool for Hyprland             |
+| Application       | Package        | Description                               |
+| ----------------- | -------------- | ----------------------------------------- |
+| File Manager      | `thunar`       | Graphical file manager                    |
+| File Sharing      | `localsend`    | Cross-platform local network file sharing |
+| Archive Manager   | `unzip`        | Archive extraction                        |
+| Clipboard Manager | `clipse` (AUR) | TUI clipboard manager with image preview  |
+| Screenshot        | `hyprshot`     | Screenshot tool for Hyprland              |
 
 ---
 
@@ -74,7 +75,7 @@ Complete list of applications used in this setup, grouped by category.
 | ------------- | ----------------- | --------------------------------------- |
 | Video Player  | `vlc`             | Primary video player with codec support |
 | Image Viewer  | `loupe`           | Image Viewer by GNOME suite             |
-| Music         | Spotify (AUR)     | Music streaming                         |
+| Music         | `spotify` (AUR)   | Music streaming                         |
 | Spotify Theme | `spicetify` (AUR) | Spotify customization via Marketplace   |
 | Audio Control | `pavucontrol`     | PulseAudio/Pipewire volume control      |
 
