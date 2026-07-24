@@ -33,7 +33,7 @@ confirm_cmd() {
 		-theme-str 'textbox {horizontal-align: 0.5;}' \
 		-dmenu \
 		-p 'Confirmation' \
-		-mesg "Are you sure you want to $1?" \
+		-mesg "Are you sure you want to <b><span color='#eceff4'>$1</span></b>?" \
 		-theme ${dir}/${theme}.rasi
 }
 
@@ -55,6 +55,9 @@ run_cmd() {
 			systemctl poweroff
 		elif [[ $1 == '--reboot' ]]; then
 			systemctl reboot
+		elif [[ $1 == '--lock' ]]; then
+			sleep 0.2
+			hyprlock
 		elif [[ $1 == '--suspend' ]]; then
 			mpc -q pause
 			amixer set Master mute
@@ -87,7 +90,7 @@ case ${chosen} in
 		run_cmd --reboot "reboot"
 		;;
 	$lock)
-		hyprlock
+		run_cmd --lock "lock"
 		;;
 	$suspend)
 		run_cmd --suspend "suspend"
