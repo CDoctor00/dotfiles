@@ -37,6 +37,26 @@ This repository contains all the configuration files for a fully customized Arch
 | Text editor       | VSCode (synced via account) |
 | Browser           | Firefox                     |
 
+---
+
+## Versions
+
+Key component versions this configuration is tested against. Hyprland configurations use the **declarative `.conf` syntax** — Lua config is not in use.
+
+| Component | Version |
+| --------- | ------- |
+| Kernel    | 7.1.3   |
+| Hyprland  | 0.55.4  |
+| Hyprlock  | 0.9.5   |
+| Waybar    | 0.15.0  |
+| Kitty     | 0.47.4  |
+| Rofi      | 2.0.0   |
+| Dunst     | 1.13.2  |
+
+> Hyprland is under active development and introduces breaking changes between minor versions. If something doesn't work after updating, check the [Hyprland changelog](https://github.com/hyprwm/Hyprland/releases) for deprecated or renamed options.
+
+---
+
 ## Screenshots
 
 **Clean**

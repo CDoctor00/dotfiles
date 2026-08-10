@@ -3,12 +3,14 @@
 #  sync.sh — Sync system state back into the repo
 #
 #  With Stow, config files are already symlinked — no need to copy them.
-#  This script regenerates package lists and copies system-level files.
+#  This script regenerates package lists, copies system-level files,
+#  and updates component versions in the README.
 #
 #  Usage:
-#    ./sync.sh                  Full sync (packages + system files)
+#    ./sync.sh                  Full sync (packages + system files + versions)
 #    ./sync.sh --packages-only  Only regenerate package lists
 #    ./sync.sh --system-only    Only copy system files into repo
+#    ./sync.sh --versions-only  Only update component versions in README
 # =============================================================================
 
 set -euo pipefail
@@ -29,6 +31,7 @@ SCRIPTS_DIR="$DOTFILES_DIR/scripts"
 SYSTEM_FILES_CONF="$SCRIPTS_DIR/system-files.conf"
 LOG_DIR="$DOTFILES_DIR/logs"
 LOG_FILE="$LOG_DIR/sync_$(date +%Y%m%d_%H%M%S).log"
+README="$DOTFILES_DIR/README.md"
 
 # AUR packages installed by the bootstrap process — excluded from aur-packages.txt
 AUR_EXCLUDE=(yay yay-bin paru paru-bin)
@@ -36,13 +39,15 @@ AUR_EXCLUDE=(yay yay-bin paru paru-bin)
 # ── Flags ─────────────────────────────────────────────────────────────────────
 PACKAGES_ONLY=false
 SYSTEM_ONLY=false
+VERSIONS_ONLY=false
 
 for arg in "$@"; do
   case $arg in
     --packages-only) PACKAGES_ONLY=true ;;
     --system-only)   SYSTEM_ONLY=true ;;
+    --versions-only) VERSIONS_ONLY=true ;;
     --help|-h)
-      echo "Usage: ./sync.sh [--packages-only] [--system-only]"
+      echo "Usage: ./sync.sh [--packages-only] [--system-only] [--versions-only]"
       exit 0 ;;
     *)
       echo -e "${YELLOW}Unknown argument: $arg${NC}"; exit 1 ;;
@@ -116,6 +121,36 @@ sync_system_files() {
   done
 }
 
+# ── Component versions ────────────────────────────────────────────────────────
+update_versions() {
+  step "Updating component versions in README"
+
+  if [[ ! -f "$README" ]]; then
+    warn "README.md not found at $README, skipping"
+    return
+  fi
+
+  local hyprland hyprlock waybar kitty rofi dunst kernel
+
+  hyprland=$(hyprctl version 2>/dev/null | grep -oP 'Hyprland \K[0-9.]+' | head -1)
+  hyprlock=$(hyprlock --version 2>&1 | grep -oP 'v\K[0-9.]+' | head -1)
+  waybar=$(waybar --version 2>&1 | grep -oP 'v\K[0-9.]+' | head -1)
+  kitty=$(kitty --version 2>/dev/null | grep -oP '[0-9.]+' | head -1)
+  rofi=$(rofi -version 2>/dev/null | grep -oP 'Version: \K[0-9.]+' | head -1)
+  dunst=$(dunst --version 2>/dev/null | grep -oP '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+  kernel=$(uname -r | grep -oP '^[0-9]+\.[0-9]+\.[0-9]+')
+
+  log "Detected versions — Kernel: ${kernel:-n/a}, Hyprland: ${hyprland:-n/a}, Hyprlock: ${hyprlock:-n/a}, Waybar: ${waybar:-n/a}, Kitty: ${kitty:-n/a}, Rofi: ${rofi:-n/a}, Dunst: ${dunst:-n/a}"
+
+  [[ -n "$kernel"   ]] && sed -i "s/^| Kernel    |.*$/| Kernel    | $(printf '%-7s' "$kernel") |/"   "$README" && ok "Kernel → $kernel"     || warn "Kernel version not detected, skipping"
+  [[ -n "$hyprland" ]] && sed -i "s/^| Hyprland  |.*$/| Hyprland  | $(printf '%-7s' "$hyprland") |/" "$README" && ok "Hyprland → $hyprland" || warn "Hyprland version not detected, skipping"
+  [[ -n "$hyprlock" ]] && sed -i "s/^| Hyprlock  |.*$/| Hyprlock  | $(printf '%-7s' "$hyprlock") |/" "$README" && ok "Hyprlock → $hyprlock" || warn "Hyprlock version not detected, skipping"
+  [[ -n "$waybar"   ]] && sed -i "s/^| Waybar    |.*$/| Waybar    | $(printf '%-7s' "$waybar") |/"   "$README" && ok "Waybar → $waybar"     || warn "Waybar version not detected, skipping"
+  [[ -n "$kitty"    ]] && sed -i "s/^| Kitty     |.*$/| Kitty     | $(printf '%-7s' "$kitty") |/"    "$README" && ok "Kitty → $kitty"       || warn "Kitty version not detected, skipping"
+  [[ -n "$rofi"     ]] && sed -i "s/^| Rofi      |.*$/| Rofi      | $(printf '%-7s' "$rofi") |/"     "$README" && ok "Rofi → $rofi"         || warn "Rofi version not detected, skipping"
+  [[ -n "$dunst"    ]] && sed -i "s/^| Dunst     |.*$/| Dunst     | $(printf '%-7s' "$dunst") |/"    "$README" && ok "Dunst → $dunst"       || warn "Dunst version not detected, skipping"
+}
+
 # ── Summary ───────────────────────────────────────────────────────────────────
 summary() {
   echo ""
@@ -149,9 +184,12 @@ main() {
     sync_packages
   elif $SYSTEM_ONLY; then
     sync_system_files
+  elif $VERSIONS_ONLY; then
+    update_versions
   else
     sync_packages
     sync_system_files
+    update_versions
   fi
 
   summary
