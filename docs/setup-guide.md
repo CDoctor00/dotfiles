@@ -25,19 +25,27 @@ sudo pacman -Syu
 ```bash
 sudo pacman -S --needed git stow
 
-git clone https://github.com/cdoctor/dotfiles.git ~/.dotfiles
+git clone https://github.com/CDoctor00/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
-chmod +x install.sh sync.sh
+chmod +x scripts/install.sh scripts/sync.sh
 
 # Full install (packages + symlinks + system files)
-./install.sh
+./scripts/install.sh
 
 # Or selectively:
-./install.sh --packages-only    # only install packages
-./install.sh --stow-only        # only create symlinks
-./install.sh --system-only      # only install /etc and /usr files
-./install.sh --dry-run          # preview without applying
+./scripts/install.sh --packages-only    # only install packages
+./scripts/install.sh --stow-only        # only create symlinks
+./scripts/install.sh --system-only      # only install /etc and /usr files
+./scripts/install.sh --dry-run          # preview without applying
 ```
+
+> **Note:** If the scripts lose their executable bit (e.g. after cloning on some systems), restore it and make git track it permanently:
+>
+> ```bash
+> chmod +x scripts/install.sh scripts/sync.sh
+> git update-index --chmod=+x scripts/install.sh scripts/sync.sh
+> git commit -m "CHORE: restore executable bit on scripts"
+> ```
 
 > After the installation, a log file is saved to logs/install\_<timestamp>.log. Check it if any step reported warnings or errors.
 

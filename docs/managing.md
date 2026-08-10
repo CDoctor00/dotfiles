@@ -8,6 +8,12 @@ Configurations are managed in two different ways depending on where they live on
 
 ## Stow packages
 
+> **Note:** Stow does not expand the tilde (`~`) in `--dir` and `--target`. Always use the full absolute path:
+>
+> ```bash
+> stow --dir=/home/<user>/coding/dotfiles/configs --target=/home/<user> <package>
+> ```
+
 ### Adding a new package
 
 ```bash
@@ -30,6 +36,18 @@ For files that live directly in `$HOME` (like `.bashrc`):
 ```bash
 mkdir -p ~/coding/dotfiles/configs/<new_package>
 mv ~/.<new_package>rc ~/coding/dotfiles/configs/<new_package>/.<new_package>rc
+stow --dir=/home/<user>/coding/dotfiles/configs --target=/home/<user> <new_package>
+```
+
+### Resolving stow conflicts
+
+Stow refuses to create a symlink if the target already exists as a real file. This happens when the application was used before being added to the repo. The fix is to remove the real file first, then stow:
+
+```bash
+# Back up the existing file if needed
+mv ~/.config/<new_package> ~/.config/<new_package>.bak
+
+# Then stow normally
 stow --dir=/home/<user>/coding/dotfiles/configs --target=/home/<user> <new_package>
 ```
 
@@ -65,6 +83,24 @@ From now on:
 
 - `./sync.sh --system-only` will copy the file from the system back into the repo
 - `./install.sh --system-only` will deploy it from the repo to the system
+
+---
+
+## Edit workflow
+
+The two management approaches have opposite edit flows — it is important not to confuse them:
+
+**Stow packages (`configs/`)** — symlinked to `$HOME`, so editing the file on the system and editing the file in the repo are the same operation. No sync needed.
+
+```
+Edit ~/.config/hypr/hyprland.conf → already reflected in the repo → git commit
+```
+
+**System files (`system/`)** — copied, not symlinked. Always edit the real file on the system, then pull it into the repo with the sync script. Editing directly in `system/` repo folder has no effect on the running system and will be overwritten on the next sync.
+
+```
+Edit /etc/sddm.conf → ./scripts/sync.sh --system-only → git commit
+```
 
 ---
 

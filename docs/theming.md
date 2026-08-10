@@ -37,7 +37,7 @@ Visual choices and how to replicate them across the entire setup.
 | Rofi                  | FiraCode Nerd Font | 12px |
 | Rofi powermenu icons  | Icomoon-Feather    | 32px |
 | Kitty (Terminal)      | FiraCode Nerd Font | 14.0 |
-| Dunst (Notifications) | Inter              | 12px |
+| Dunst (Notifications) | FiraCode Nerd Font | 11px |
 | Icons (Waybar)        | Font Awesome 6 Pro | —    |
 | Icons (Rofi taskbar)  | Numix-Circle       | —    |
 
@@ -228,19 +228,23 @@ fg-alt: #88C0D0 (highlight)
 
 **Key settings:**
 
-- Position: top-right with 35px offset
-- Size: 400x300px max
-- Font: Inter 12
-- Corner radius: 10px
-- Frame: 2px with Nord blue (`#88C0D0`)
-- Gap between notifications: 10px
+- Position: top-right with 20px offset
+- Size: 380x300px max
+- Font: FiraCode Nerd Font 11
+- Corner radius: 12px
+- Frame: 2px with `#4C566A` (inactive), `#88C0D0` for critical
+- Gap between notifications: 8px
+- Background: semitransparent `#2E3440ee`
 - Timeout: 10s (5s for low urgency, 0s for critical)
+- Icon theme: **Papirus-Dark** — Arc icons are not installed on this system
+
+**Format:** `<small>%a</small>\n<b>%s</b>\n%b` — the `%a` token shows the originating app name above the notification title, useful for browser-generated notifications (e.g. WhatsApp Web via Firefox) where the title would otherwise only show the contact name.
 
 **Urgency levels:**
 
-- **Low:** Background `#2E3440`, text `#D8DEE9`, timeout 5s
-- **Normal:** Background `#2E3440`, text `#D8DEE9`, timeout 10s
-- **Critical:** Background `#BF616A`, text `#ECEFF4`, frame `#ECEFF4`, timeout infinite
+- **Low:** Background `#2E3440ee`, text `#D8DEE9`, frame `#3B4252`, timeout 5s
+- **Normal:** Background `#2E3440ee`, text `#D8DEE9`, frame `#4C566A`, timeout 10s
+- **Critical:** Background `#BF616Aee`, text `#ECEFF4`, frame `#D08770`, timeout infinite
 
 ---
 

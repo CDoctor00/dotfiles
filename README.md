@@ -71,10 +71,10 @@ This repository contains all the configuration files for a fully customized Arch
 > ⚠️ Read the full guide before running. The script installs packages and modifies system files.
 
 ```bash
-git clone https://github.com/cdoctor/dotfiles.git ~/.dotfiles
+git clone https://github.com/CDoctor00/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
-chmod +x install.sh sync.sh
-./install.sh
+chmod +x scripts/install.sh scripts/sync.sh
+./scripts/install.sh
 ```
 
 ---
@@ -103,7 +103,9 @@ dotfiles/
 │   └── waybar/                     # → $HOME/.config/waybar/
 │
 ├── docs/
+│   ├── applications.md
 │   ├── keybindings.md
+│   ├── managing.md
 │   ├── setup-guide.md
 │   └── theming.md
 │
@@ -126,26 +128,6 @@ dotfiles/
 │   └── sddm-theme/
 │       └── silent/                 → /usr/share/sddm/themes/silent/ (modified files only)
 │
-├── scripts/
-│   ├── system-files.conf           # Shared map: repo path ↔ system path
-│   ├── install.sh                  # Full installer
-│   └── sync.sh                     # Sync system state back into the repo
-│
-├── packages/
-│   ├── packages.txt                # Official pacman packages
-│   └── aur-packages.txt            # AUR packages
-│
-├── docs/
-│   ├── applications.md
-│   ├── keybindings.md
-│   ├── managing.md
-│   ├── setup-guide.md
-│   └── theming.md
-│
-├── assets/
-│   ├── screenshots/
-│   └── wallpapers/
-│
 └── .gitignore
 ```
 
@@ -166,7 +148,7 @@ Configurations are managed in two different ways depending on where they live on
 | dunst      | `configs/dunst/.config/dunst/`             | `~/.config/dunst/`               |
 | face       | `configs/face/.face`                       | `~/.face`                        |
 | fontconfig | `configs/fontconfig/.config/fontconfig/`   | `~/.config/fontconfig/`          |
-| fonts      | `configs/fonts/.local/share/fonts`         | `~/.local/share/fonts/`          |
+| fonts      | `configs/fonts/.local/share/fonts/`        | `~/.local/share/fonts/`          |
 | gtk        | `configs/gtk/.config/gtk-3.0/`, `gtk-4.0/` | `~/.config/gtk-3.0/`, `gtk-4.0/` |
 | hypr       | `configs/hypr/.config/hypr/`               | `~/.config/hypr/`                |
 | kitty      | `configs/kitty/.config/kitty/`             | `~/.config/kitty/`               |
@@ -184,6 +166,8 @@ Managed via `scripts/system-files.conf`. Only modified files are tracked — the
 | SDDM config      | `system/sddm/sddm.conf`                        | `/etc/sddm.conf`                         |
 | SDDM custom.conf | `system/sddm-theme/silent/configs/custom.conf` | `/usr/share/sddm/themes/silent/configs/` |
 | SDDM metadata    | `system/sddm-theme/silent/metadata.desktop`    | `/usr/share/sddm/themes/silent/`         |
+
+For detailed instructions on adding or removing configurations, see [`docs/managing.md`](docs/managing.md).
 
 ---
 
@@ -217,11 +201,11 @@ git push
 ### Syncing packages and system files
 
 ```bash
-./sync.sh                  # update package lists + copy system files into repo
-./sync.sh --packages-only  # only update package lists
-./sync.sh --system-only    # only copy system files into repo
+./scripts/sync.sh                  # update package lists + copy system files into repo
+./scripts/sync.sh --packages-only  # only update package lists
+./scripts/sync.sh --system-only    # only copy system files into repo
 
 git add -A && git commit -m "chore: sync"
 ```
 
-> After the syncing, a log file is saved to logs/sync\_<timestamp>.log. Check it if any step reported warnings or errors.
+> After syncing, a log file is saved to `logs/sync_<timestamp>.log`. Check it if any step reported warnings or errors.
