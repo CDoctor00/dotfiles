@@ -104,6 +104,43 @@ Edit /etc/sddm.conf → ./scripts/sync.sh --system-only → git commit
 
 ---
 
+## Bash Configuration
+
+The Bash setup follows the **XDG Base Directory Specification** for a clean `$HOME`.
+
+### File Structure
+
+- **User config**: `~/.bashrc` (symlinked via Stow to `configs/bash/.bashrc`)
+- **User history**: `~/.local/share/bash/history` (XDG_DATA_HOME)
+- **Root config**: `/root/.bashrc` (copied via `install.sh`, not symlinked)
+- **Root history**: `/root/.bash_history` (separate for security)
+
+### Why separate for root?
+
+Root user's home (`/root`) cannot use symlinks to user space (`~/.local/share/`), so:
+
+- `install.sh` automatically copies the bashrc to `/root/.bashrc` after running stow
+- Root has its own history file to avoid permission issues
+- When you edit `configs/bash/.bashrc`, you need to re-run `./install.sh --stow-only` to sync changes to `/root/.bashrc`
+
+### Updating root bashrc
+
+After modifying `configs/bash/.bashrc`:
+
+```bash
+cd ~/.dotfiles
+./install.sh --stow-only
+# This updates both ~/.bashrc (via stow) and /root/.bashrc (via install_root_bashrc)
+```
+
+Or manually:
+
+```bash
+sudo cp configs/bash/.bashrc /root/.bashrc
+```
+
+---
+
 ## After any change
 
 Whether you added a Stow package or a system file, always close the loop by updating the repo documentation and committing everything together:

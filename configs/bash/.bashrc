@@ -17,23 +17,53 @@
 
 
 # ─────────────────────────────────────────
+#  XDG BASE DIRECTORY SPECIFICATION
+# ─────────────────────────────────────────
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:=$HOME/.config}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:=$HOME/.cache}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:=$HOME/.local/share}"
+export XDG_STATE_HOME="${XDG_STATE_HOME:=$HOME/.local/state}"
+
+
+# ─────────────────────────────────────────
 #  HISTORY
 # ─────────────────────────────────────────
-HISTSIZE=10000
-HISTFILESIZE=20000
-HISTCONTROL=ignoreboth:erasedups   # don't put duplicate lines
+# Root user: separate history file to avoid permission issues
+if [[ ${EUID} == 0 ]] ; then
+    export HISTFILE="/root/.bash_history"
+    [[ ! -d "/root" ]] && mkdir -p "/root"
+else
+    export HISTFILE="$XDG_DATA_HOME/bash/history"
+    [[ ! -d "$XDG_DATA_HOME/bash" ]] && mkdir -p "$XDG_DATA_HOME/bash"
+fi
+
+export HISTSIZE=10000
+export HISTFILESIZE=20000
+export HISTCONTROL=ignoreboth:erasedups   # don't put duplicate lines
+
 shopt -s histappend
 bind '"\e[A": history-search-backward'
 bind '"\e[B": history-search-forward'
 
 
 # ─────────────────────────────────────────
-#  PROMPT 
+#  PROMPT — Nord Palette
 # ─────────────────────────────────────────
+# Colors from docs/theming.md:
+# - Background: #2E3440 (46, 52, 64)
+# - Surface: #3B4252 (59, 66, 82)
+# - Overlay: #4C566A (76, 86, 106)
+# - Text: #D8DEE9 (216, 222, 233)
+# - Frost 2 (highlight): #88C0D0 (136, 192, 208)
+# - Frost 3: #81A1C1 (129, 161, 193)
+# - Aurora Red: #BF616A (191, 97, 106)
+
+# ROOT prompt: red accent for root user
 if [[ ${EUID} == 0 ]] ; then
-    PS1='\[\033[48;2;221;75;57;38;2;255;255;255m\] \$ \[\033[48;2;0;135;175;38;2;221;75;57m\]\[\033[48;2;0;135;175;38;2;255;255;255m\] \h \[\033[48;2;83;85;85;38;2;0;135;175m\]\[\033[48;2;83;85;85;38;2;255;255;255m\] \w \[\033[49;38;2;83;85;85m\]\[\033[00m\] '
+    PS1='\[\033[48;2;191;97;106;38;2;255;255;255m\] \$ \[\033[48;2;46;52;64;38;2;191;97;106m\]\[\033[48;2;46;52;64;38;2;216;222;233m\] \h \[\033[48;2;76;86;106;38;2;46;52;64m\]\[\033[48;2;76;86;106;38;2;216;222;233m\] \w \[\033[49;38;2;76;86;106m\]\[\033[00m\] '
+# USER prompt: blue accent with high-contrast username
 else
-    PS1='\[\033[48;2;25;25;45;38;2;140;175;210m\] \$ \[\033[48;2;45;50;55;38;2;25;25;45m\]\[\033[48;2;45;50;55;38;2;140;175;210m\] \u@\h \[\033[48;2;60;80;100;38;2;45;50;55m\]\[\033[48;2;60;80;100;38;2;140;175;210m\] \w \[\033[49;38;2;60;80;100m\]\[\033[00m\] '
+    PS1='\[\033[48;2;129;161;193;38;2;255;255;255m\] \$ \[\033[48;2;46;52;64;38;2;129;161;193m\]\[\033[48;2;46;52;64;38;2;136;192;208m\] \u@\h \[\033[48;2;76;86;106;38;2;46;52;64m\]\[\033[48;2;76;86;106;38;2;216;222;233m\] \w \[\033[49;38;2;76;86;106m\]\[\033[00m\] '
 fi
 
 
@@ -96,4 +126,3 @@ alias gd='git diff'
 #   --color=fg:#D8DEE9,header:#81A1C1,info:#88C0D0,pointer:#88C0D0
 #   --color=marker:#88C0D0,fg+:#ECEFF4,prompt:#81A1C1,hl+:#81A1C1
 #   --border rounded --height 40%"
-

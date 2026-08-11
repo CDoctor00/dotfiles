@@ -161,20 +161,22 @@ Configurations are managed in two different ways depending on where they live on
 
 #### Stow packages
 
-| Package    | Source in repo                             | Links to                         |
-| ---------- | ------------------------------------------ | -------------------------------- |
-| bash       | `configs/bash/.bashrc`, `.bash_profile`    | `~/.bashrc`, `~/.bash_profile`   |
-| clipse     | `configs/clipse/.config/clipse/`           | `~/.config/clipse/`              |
-| dunst      | `configs/dunst/.config/dunst/`             | `~/.config/dunst/`               |
-| face       | `configs/face/.face`                       | `~/.face`                        |
-| fontconfig | `configs/fontconfig/.config/fontconfig/`   | `~/.config/fontconfig/`          |
-| fonts      | `configs/fonts/.local/share/fonts/`        | `~/.local/share/fonts/`          |
-| gtk        | `configs/gtk/.config/gtk-3.0/`, `gtk-4.0/` | `~/.config/gtk-3.0/`, `gtk-4.0/` |
-| hypr       | `configs/hypr/.config/hypr/`               | `~/.config/hypr/`                |
-| kitty      | `configs/kitty/.config/kitty/`             | `~/.config/kitty/`               |
-| rofi       | `configs/rofi/.config/rofi/`               | `~/.config/rofi/`                |
-| spicetify  | `configs/spicetify/.config/spicetify/`     | `~/.config/spicetify/`           |
-| waybar     | `configs/waybar/.config/waybar/`           | `~/.config/waybar/`              |
+| Package    | Source in repo                             | Links to                                      |
+| ---------- | ------------------------------------------ | --------------------------------------------- |
+| bash       | `configs/bash/.bashrc`, `.bash_profile`    | `~/.bashrc`, `/root/.bashrc`, `.bash_profile` |
+| clipse     | `configs/clipse/.config/clipse/`           | `~/.config/clipse/`                           |
+| dunst      | `configs/dunst/.config/dunst/`             | `~/.config/dunst/`                            |
+| face       | `configs/face/.face`                       | `~/.face`                                     |
+| fontconfig | `configs/fontconfig/.config/fontconfig/`   | `~/.config/fontconfig/`                       |
+| fonts      | `configs/fonts/.local/share/fonts/`        | `~/.local/share/fonts/`                       |
+| gtk        | `configs/gtk/.config/gtk-3.0/`, `gtk-4.0/` | `~/.config/gtk-3.0/`, `gtk-4.0/`              |
+| hypr       | `configs/hypr/.config/hypr/`               | `~/.config/hypr/`                             |
+| kitty      | `configs/kitty/.config/kitty/`             | `~/.config/kitty/`                            |
+| rofi       | `configs/rofi/.config/rofi/`               | `~/.config/rofi/`                             |
+| spicetify  | `configs/spicetify/.config/spicetify/`     | `~/.config/spicetify/`                        |
+| waybar     | `configs/waybar/.config/waybar/`           | `~/.config/waybar/`                           |
+
+> **Note on bash**: The root user's bashrc is copied to `/root/.bashrc` via `install.sh` since it cannot use symlinks. When updating the configuration, run `./install.sh --stow-only` to sync changes to both the user and root bashrc files.
 
 #### System files
 

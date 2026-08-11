@@ -33,7 +33,7 @@ LOG_DIR="$DOTFILES_DIR/logs"
 LOG_FILE="$LOG_DIR/install_$(date +%Y%m%d_%H%M%S).log"
 
 # Stow packages — all directories inside configs/
-STOW_PACKAGES=(bash dunst face fontconfig fonts gtk hypr kitty rofi spicetify waybar wlogout)
+STOW_PACKAGES=(bash dunst face fontconfig fonts gtk hypr kitty rofi spicetify waybar)
 
 # AUR packages that are allowed to fail without blocking the installation
 NON_BLOCKING_AUR=(spicetify-cli)
@@ -213,6 +213,27 @@ stow_packages() {
   done
 }
 
+# ── Root bashrc ───────────────────────────────────────────────────────────────
+install_root_bashrc() {
+  step "Installing bashrc for root user"
+  
+  local src="$CONFIGS_DIR/bash/.bashrc"
+  if [[ ! -f "$src" ]]; then
+    warn "Source bashrc not found, skipping: $src"
+    return
+  fi
+
+  # Back up existing /root/.bashrc if it exists
+  if [[ -f /root/.bashrc ]]; then
+    run sudo cp /root/.bashrc "/root/.bashrc.bak.$(date +%Y%m%d_%H%M%S)"
+    warn "Backed up existing: /root/.bashrc"
+  fi
+
+  run sudo cp "$src" /root/.bashrc
+  run sudo chmod 644 /root/.bashrc
+  ok "Installed: $src → /root/.bashrc"
+}
+
 unstow_packages() {
   step "Unstowing all packages"
   check_stow
@@ -314,6 +335,7 @@ main() {
     install_packages
   elif $STOW_ONLY; then
     stow_packages
+    install_root_bashrc
     install_scripts
     refresh_fonts
   elif $SYSTEM_ONLY; then
@@ -321,6 +343,7 @@ main() {
   else
     install_packages
     stow_packages
+    install_root_bashrc
     install_system_files
     install_scripts
     refresh_fonts

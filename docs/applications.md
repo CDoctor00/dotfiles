@@ -17,7 +17,7 @@ Complete list of applications used in this setup, grouped by category.
 | Night Light         | `hyprsunset`      | Blue light filter (similar to redshift)              |
 | Authentication      | `hyprpolkitagent` | Polkit authentication agent for Hyprland             |
 | Display Manager     | `sddm`            | Login manager with silent theme                      |
-| Logout Menu         | `rofi-wayland`    | Logout/power menu replacing wlogout                  |
+| Logout Menu         | `rofi-wayland`    | Logout/power menu                                    |
 
 ---
 
