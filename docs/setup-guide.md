@@ -47,7 +47,7 @@ chmod +x scripts/install.sh scripts/sync.sh
 > git commit -m "CHORE: restore executable bit on scripts"
 > ```
 
-> After the installation, a log file is saved to logs/install\_<timestamp>.log. Check it if any step reported warnings or errors.
+> After the installation, a log file is saved to `logs/install_<timestamp>.log`. Check it if any step reported warnings or errors.
 
 ---
 
@@ -142,5 +142,5 @@ Stow refuses to overwrite existing real files. Back up the conflicting file and 
 
 ```bash
 mv ~/.config/hypr ~/.config/hypr.bak
-cd ~/.dotfiles && stow hypr
+cd ~/.dotfiles && stow --dir=configs --target=$HOME hypr
 ```

@@ -32,8 +32,13 @@ SYSTEM_FILES_CONF="$SCRIPTS_DIR/system-files.conf"
 LOG_DIR="$DOTFILES_DIR/logs"
 LOG_FILE="$LOG_DIR/install_$(date +%Y%m%d_%H%M%S).log"
 
-# Stow packages — all directories inside configs/
-STOW_PACKAGES=(bash dunst face fontconfig fonts gtk hypr kitty rofi spicetify waybar)
+# Stow packages — Automatically detect all Stow packages by reading the folders inside configs/
+STOW_PACKAGES=()
+for dir in "$CONFIGS_DIR"/*; do
+  if [[ -d "$dir" ]]; then
+    STOW_PACKAGES+=("$(basename "$dir")")
+  fi
+done
 
 # AUR packages that are allowed to fail without blocking the installation
 NON_BLOCKING_AUR=(spicetify-cli)
@@ -182,11 +187,28 @@ install_packages() {
 # ── Stow ──────────────────────────────────────────────────────────────────────
 backup_if_real() {
   local target="$1"
-  if [[ -e "$target" && ! -L "$target" ]]; then
-    warn "Backing up: $target → $BACKUP_DIR/"
-    run mkdir -p "$BACKUP_DIR"
-    run mv "$target" "$BACKUP_DIR/"
+  local rel_path="$2"  # Es: hypr/.config/hypr/hyprland.conf
+
+  # Se il target non esiste, non c'è nulla da backuppare
+  [[ -e "$target" ]] || return 0
+  
+  # Se il target è un symlink diretto, lasciamo che ci pensi Stow
+  [[ -L "$target" ]] && return 0
+  
+  # FIX: Risolviamo il percorso reale assoluto del file.
+  # Se il file si trova (tramite un symlink di una cartella genitore)
+  # all'interno della nostra repository, ignoriamolo per non cancellarlo da git!
+  local real_target
+  real_target="$(readlink -f "$target")"
+  if [[ "$real_target" == "$DOTFILES_DIR"* ]]; then
+    return 0
   fi
+
+  # A questo punto siamo certi che è un vero file estraneo alla repo.
+  local backup_dest="$BACKUP_DIR/$rel_path"
+  warn "Backing up: $target → $backup_dest"
+  run mkdir -p "$(dirname "$backup_dest")"
+  run mv "$target" "$backup_dest"
 }
 
 stow_packages() {
@@ -205,11 +227,16 @@ stow_packages() {
     while IFS= read -r -d '' file; do
       local rel="${file#$pkg_dir/}"
       local target="$HOME/$rel"
-      backup_if_real "$target"
+      # Passiamo anche il percorso relativo con il nome del pacchetto per il backup
+      backup_if_real "$target" "$pkg/$rel"
     done < <(find "$pkg_dir" -not -type d -print0)
 
-    run stow --dir="$CONFIGS_DIR" --target="$HOME" "$pkg"
-    ok "Stowed: $pkg"
+    # Aggiunto anche il controllo di exit code suggerito dall'handoff
+    if run stow --dir="$CONFIGS_DIR" --target="$HOME" "$pkg"; then
+      ok "Stowed: $pkg"
+    else
+      error "Stow FAILED for package: $pkg (see log)"
+    fi
   done
 }
 

@@ -91,9 +91,17 @@ Key component versions this configuration is tested against. Hyprland configurat
 > ⚠️ Read the full guide before running. The script installs packages and modifies system files.
 
 ```bash
+# 1. Install prerequisites
+sudo pacman -S --needed git stow
+
+# 2. Clone the repository to the standard path
 git clone https://github.com/CDoctor00/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
+
+# 3. Make scripts executable
 chmod +x scripts/install.sh scripts/sync.sh
+
+# 4. Run the installer
 ./scripts/install.sh
 ```
 
@@ -214,7 +222,7 @@ Since configs are symlinked, just edit normally and commit:
 
 ```bash
 # Edit any config file as usual, then:
-cd ~/coding/dotfiles
+cd ~/.dotfiles
 git add -A
 git commit -m "feat(hypr): adjust border radius"
 git push
