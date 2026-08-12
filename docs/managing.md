@@ -4,6 +4,8 @@ This document explains how to add, remove, and maintain configurations tracked i
 
 Configurations are managed in two different ways depending on where they live on the system. User-space configs (under `$HOME`) are handled with **GNU Stow**, which creates symlinks so that any edit is immediately reflected in the repo. System-level files (under `/etc` or `/usr/share`) require root access and cannot be symlinked, so they are managed via **install/sync scripts** that copy files in both directions.
 
+This document covers procedures — how to add, remove, and fix things. For what each script actually does under the hood (flags, phases, logging), see [`docs/scripts.md`](scripts.md).
+
 ---
 
 ## Stow packages
@@ -85,6 +87,12 @@ From now on:
 
 - `./sync.sh --system-only` will copy the file from the system back into the repo
 - `./install.sh --system-only` will deploy it from the repo to the system
+
+---
+
+## Checking system health
+
+Run `./scripts/status.sh` any time after making changes, after a system update, or when something feels off — it's a read-only diagnostic that checks Stow symlink integrity, system file alignment, critical binaries, and stale paths from past migrations. See [`docs/scripts.md`](scripts.md) for the full breakdown of what it checks.
 
 ---
 

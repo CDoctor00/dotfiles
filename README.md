@@ -81,6 +81,7 @@ Key component versions this configuration is tested against. Hyprland configurat
 - [`docs/applications.md`](docs/applications.md) — complete list of applications by category
 - [`docs/keybindings.md`](docs/keybindings.md) — all Hyprland & Kitty keybindings
 - [`docs/managing.md`](docs/managing.md) — how to add, remove and maintain configurations
+- [`docs/scripts.md`](docs/scripts.md) — reference for `install.sh`, `sync.sh` and `status.sh`
 - [`docs/setup-guide.md`](docs/setup-guide.md) — step-by-step post Arch install guide
 - [`docs/theming.md`](docs/theming.md) — colors, fonts, GTK theme choices
 
@@ -134,6 +135,7 @@ dotfiles/
 │   ├── applications.md
 │   ├── keybindings.md
 │   ├── managing.md
+│   ├── scripts.md
 │   ├── setup-guide.md
 │   └── theming.md
 │
@@ -146,7 +148,8 @@ dotfiles/
 ├── scripts/
 │   ├── system-files.conf           # Shared map: repo path ↔ system path
 │   ├── install.sh                  # Full installer
-│   └── sync.sh                     # Sync system state back into the repo
+│   ├── sync.sh                     # Sync system state back into the repo
+│   └── status.sh                   # Health-check for the whole setup
 │
 ├── system/                         # Files requiring root — installed via install.sh
 │   ├── pacman/
@@ -184,7 +187,7 @@ Configurations are managed in two different ways depending on where they live on
 | spicetify  | `configs/spicetify/.config/spicetify/`     | `~/.config/spicetify/`                        |
 | waybar     | `configs/waybar/.config/waybar/`           | `~/.config/waybar/`                           |
 
-> **Note on bash**: The root user's bashrc is copied to `/root/.bashrc` via `install.sh` since it cannot use symlinks. When updating the configuration, run `./install.sh --stow-only` to sync changes to both the user and root bashrc files.
+> **Note on bash**: The root user's bashrc is copied to `/root/.bashrc` via `install.sh` since it cannot use symlinks. When updating the configuration, run `./install.sh --symlinks-only --root-bashrc-only` to sync changes to both the user and root bashrc files.
 
 #### System files
 
@@ -231,11 +234,20 @@ git push
 ### Syncing packages and system files
 
 ```bash
-./scripts/sync.sh                  # update package lists + copy system files into repo
+./scripts/sync.sh                  # update package lists + copy system files into repo + refresh README versions
 ./scripts/sync.sh --packages-only  # only update package lists
 ./scripts/sync.sh --system-only    # only copy system files into repo
+./scripts/sync.sh --versions-only  # only refresh the version table in this README
 
 git add -A && git commit -m "chore: sync"
 ```
 
 > After syncing, a log file is saved to `logs/sync_<timestamp>.log`. Check it if any step reported warnings or errors.
+
+### Checking system health
+
+```bash
+./scripts/status.sh
+```
+
+Read-only diagnostic — checks Stow symlinks, system file alignment, critical binaries, and stale paths from past migrations. See [`docs/scripts.md`](docs/scripts.md) for details on all three scripts.

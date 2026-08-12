@@ -108,6 +108,14 @@ sudo reboot
 
 ## Troubleshooting
 
+Before digging into a specific symptom, run the health-check script — it catches the most common causes of a broken setup (missing binaries, broken Stow symlinks, out-of-sync system files):
+
+```bash
+./scripts/status.sh
+```
+
+See [`docs/scripts.md`](scripts.md) for details on what it checks.
+
 **Black screen after launching Hyprland**
 Check your monitor name and update `hyprland.conf`:
 
