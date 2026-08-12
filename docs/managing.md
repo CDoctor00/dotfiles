@@ -6,17 +6,41 @@ Configurations are managed in two different ways depending on where they live on
 
 This document covers procedures — how to add, remove, and fix things. For what each script actually does under the hood (flags, phases, logging), see [`docs/scripts.md`](scripts.md).
 
+## Contents
+
+- [Stow packages](#stow-packages)
+  - [The stow command](#the-stow-command)
+  - [Adding a new package](#adding-a-new-package)
+  - [Bash (user + root)](#bash-user--root)
+  - [Resolving conflicts](#resolving-conflicts)
+  - [Removing a package](#removing-a-package)
+- [System files](#system-files)
+  - [Adding a new system file](#adding-a-new-system-file)
+- [Edit workflow](#edit-workflow)
+- [Checking system health](#checking-system-health)
+- [After any change](#after-any-change)
+
 ---
 
 ## Stow packages
 
-> **Note:** Stow does not expand the tilde (`~`) in `--dir` and `--target`. Always use the full absolute path:
->
-> ```bash
-> stow --dir=/home/<user>/.dotfiles/configs --target=/home/<user> <package>
-> ```
->
-> **Automation Note:** The `install.sh` script automatically detects any directory placed inside `configs/`. You do not need to manually register package names in the script—simply create the folder, populate it, and run `./scripts/install.sh --stow-only`.
+### The stow command
+
+Every Stow operation in this repo uses the same base command — only the package name and an optional flag change:
+
+```bash
+stow --dir=/home/<user>/.dotfiles/configs --target=/home/<user> <package>
+```
+
+> **Note:** Stow does not expand the tilde (`~`) in `--dir` and `--target`. Always use the full absolute path as above, not `~`.
+
+- **Stow a package:** `... <package>`
+- **Remove a package's symlinks (without touching the repo):** add `-D` → `... -D <package>`
+- **Re-stow after moving/renaming files inside a package:** add `-R` → `... -R <package>`
+
+The sections below use a shortened `stow ... <package>` for brevity — substitute the full command above.
+
+> **Automation note:** `install.sh` automatically detects any directory placed inside `configs/` — you don't need to register package names anywhere. Create the folder, populate it, and run `./scripts/install.sh --symlinks-only`.
 
 ### Adding a new package
 
@@ -43,7 +67,28 @@ mv ~/.<new_package>rc ~/.dotfiles/configs/<new_package>/.<new_package>rc
 stow --dir=/home/<user>/.dotfiles/configs --target=/home/<user> <new_package>
 ```
 
-### Resolving stow conflicts
+### Bash (user + root)
+
+Bash is a Stow package like any other for the current user (`configs/bash/.bashrc` → `~/.bashrc`), but with one exception: **root also needs a copy**, and root's home (`/root`) can't use a symlink into a regular user's home directory. So `install.sh` copies — not symlinks — `configs/bash/.bashrc` to `/root/.bashrc` as a separate step, right after stowing.
+
+Practical implication: editing `configs/bash/.bashrc` updates `~/.bashrc` immediately (it's a symlink), but **`/root/.bashrc` stays stale until you re-run the copy step**:
+
+```bash
+cd ~/.dotfiles
+./scripts/install.sh --symlinks-only --root-bashrc-only   # re-stows configs/ AND refreshes /root/.bashrc
+```
+
+Or copy it manually without touching anything else:
+
+```bash
+sudo cp configs/bash/.bashrc /root/.bashrc
+```
+
+See [`docs/scripts.md`](scripts.md) for the full list of `install.sh` flags.
+
+Root also gets its own separate bash history (`/root/.bash_history`) rather than sharing the user's `~/.local/share/bash/history` (XDG_DATA_HOME) — this avoids permission issues between the two accounts.
+
+### Resolving conflicts
 
 Stow refuses to create a symlink if the target already exists as a real file. This happens when the application was used before being added to the repo. The fix is to remove the real file first, then stow:
 
@@ -90,12 +135,6 @@ From now on:
 
 ---
 
-## Checking system health
-
-Run `./scripts/status.sh` any time after making changes, after a system update, or when something feels off — it's a read-only diagnostic that checks Stow symlink integrity, system file alignment, critical binaries, and stale paths from past migrations. See [`docs/scripts.md`](scripts.md) for the full breakdown of what it checks.
-
----
-
 ## Edit workflow
 
 The two management approaches have opposite edit flows — it is important not to confuse them:
@@ -114,40 +153,9 @@ Edit /etc/sddm.conf → ./scripts/sync.sh --system-only → git commit
 
 ---
 
-## Bash Configuration
+## Checking system health
 
-The Bash setup follows the **XDG Base Directory Specification** for a clean `$HOME`.
-
-### File Structure
-
-- **User config**: `~/.bashrc` (symlinked via Stow to `configs/bash/.bashrc`)
-- **User history**: `~/.local/share/bash/history` (XDG_DATA_HOME)
-- **Root config**: `/root/.bashrc` (copied via `install.sh`, not symlinked)
-- **Root history**: `/root/.bash_history` (separate for security)
-
-### Why separate for root?
-
-Root user's home (`/root`) cannot use symlinks to user space (`~/.local/share/`), so:
-
-- `install.sh` automatically copies the bashrc to `/root/.bashrc` after running stow
-- Root has its own history file to avoid permission issues
-- When you edit `configs/bash/.bashrc`, you need to re-run `./install.sh --stow-only` to sync changes to `/root/.bashrc`
-
-### Updating root bashrc
-
-After modifying `configs/bash/.bashrc`:
-
-```bash
-cd ~/.dotfiles
-./install.sh --stow-only
-# This updates both ~/.bashrc (via stow) and /root/.bashrc (via install_root_bashrc)
-```
-
-Or manually:
-
-```bash
-sudo cp configs/bash/.bashrc /root/.bashrc
-```
+Run `./scripts/status.sh` any time after making changes, after a system update, or when something feels off — it's a read-only diagnostic that checks Stow symlink integrity, system file alignment, critical binaries, and stale paths from past migrations. See [`docs/scripts.md`](scripts.md) for the full breakdown of what it checks.
 
 ---
 

@@ -2,6 +2,22 @@
 
 Complete keybinding reference for the system setup.
 
+## Contents
+
+- [Hyprland](#hyprland)
+  - [Applications](#applications)
+  - [Windows](#windows)
+  - [Workspaces](#workspaces)
+  - [Screenshots](#screenshots)
+  - [Volume](#volume)
+  - [Brightness](#brightness)
+  - [Media](#media-requires-playerctl)
+- [Kitty](#kitty)
+  - [Font size](#font-size)
+  - [Tabs](#tabs)
+  - [Windows (splits)](#windows-splits)
+  - [Basic](#basic)
+
 ## Hyprland
 
 ### Modifier keys
@@ -82,6 +98,8 @@ Complete keybinding reference for the system setup.
 | `XF86AudioPlay`  | Play/pause     |
 | `XF86AudioPause` | Play/pause     |
 
+> Volume and brightness bindings use Hyprland's `bindel` and repeat while the key is held. Media key bindings use `bindl` and only trigger once, on key release.
+
 ---
 
 ## Kitty
@@ -135,8 +153,6 @@ Complete keybinding reference for the system setup.
 
 ## Notes
 
-- Hyprland `bindel` bindings (volume, brightness) repeat when held
-- Hyprland `bindl` bindings (media keys) trigger only on key release
 - Hyprland default layout is **Dwindle**
 - Kitty scrollback is piped through `bat` for syntax highlighting
 - Kitty remote control is enabled via unix socket (`/tmp/kitty`)

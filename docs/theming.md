@@ -2,6 +2,19 @@
 
 Visual choices and how to replicate them across the entire setup.
 
+## Contents
+
+- [Color Scheme](#color-scheme)
+- [Fonts](#fonts)
+- [GTK Theme](#gtk-theme)
+- [Hyprland](#hyprland)
+- [Waybar](#waybar)
+- [Rofi](#rofi)
+- [Dunst (Notifications)](#dunst-notifications)
+- [Kitty (Terminal)](#kitty-terminal)
+- [Wallpaper](#wallpaper)
+- [Environment Variables](#environment-variables)
+
 ---
 
 ## Color Scheme
@@ -26,6 +39,8 @@ Visual choices and how to replicate them across the entire setup.
 | Aurora Green  | `#A3BE8C` | Success states, calendar weeks                 |
 | Aurora Purple | `#B48EAD` | Alternate accent                               |
 
+> This table is the single source of truth for colors. Sections below reference colors by name (e.g. "Frost 2") — look up the hex value here rather than re-deriving it, so a future palette change only needs updating in one place.
+
 ---
 
 ## Fonts
@@ -42,6 +57,8 @@ Visual choices and how to replicate them across the entire setup.
 | Icons (Rofi taskbar)  | Numix-Circle       | —    |
 
 Icomoon-Feather is not available on pacman or AUR — it is tracked directly in the repo under `configs/fonts/.local/share/fonts/` and linked via stow.
+
+> This table is the source of truth for fonts and sizes. Per-application sections below restate the relevant font for convenience, but if a size ever needs changing, this is the table to update first.
 
 ---
 
@@ -68,6 +85,8 @@ exec-once = dconf load /org/gnome/desktop/interface/ < ~/.config/hypr/dconf/inte
 ## Hyprland
 
 ### General Settings & Borders
+
+Border colors use Frost 2 → Frost 3 (`#88C0D0` → `#81A1C1`) for the active border, and a translucent Background (`#2E3440`) for the inactive one — see [Color Scheme](#color-scheme) for the full palette.
 
 ```ini
 general {
@@ -157,6 +176,8 @@ Position at top with 30px height. Includes modular groups for resources, input, 
 
 **CSS Styling:**
 
+The `@define-color` block mirrors Background, Text, Frost 2, and Frost 3 from the [Color Scheme](#color-scheme) table above.
+
 ```css
 /* Nordic Palette */
 @define-color nord_bg #2E3440;
@@ -203,6 +224,8 @@ button:hover {
 
 **Theme:** Arc-inspired Nordic
 
+> Unlike Hyprland and Waybar above, Rofi's full `.rasi` theme file isn't reproduced here — it's long and mostly boilerplate. See `configs/rofi/.config/rofi/` in the repo for the actual file; the settings below are the ones most likely to need tweaking.
+
 **Key settings:**
 
 - Font: FiraCode Nerd Font 12
@@ -212,19 +235,13 @@ button:hover {
 - Lines visible: 8
 - Icon size: 20px
 
-**Color scheme:**
-
-```
-bg-dark: #2E3440
-bg: #3B4252
-bg-alt: #4C566A
-fg: #D8DEE9
-fg-alt: #88C0D0 (highlight)
-```
+**Color scheme:** Background, Surface, Overlay, Text, and Frost 2 (highlight) from the [Color Scheme](#color-scheme) table — `#2E3440`, `#3B4252`, `#4C566A`, `#D8DEE9`, `#88C0D0` respectively.
 
 ---
 
 ## Dunst (Notifications)
+
+Colors below map to Background, Overlay, Frost 2, and Aurora Orange/Red in the [Color Scheme](#color-scheme) table.
 
 **Key settings:**
 
@@ -252,7 +269,7 @@ fg-alt: #88C0D0 (highlight)
 
 **Font:** FiraCode Nerd Font 14.0
 
-**Colors:**
+**Colors:** Background and Text use the same Background/Text pair as everywhere else (see [Color Scheme](#color-scheme)); selection uses Surface/Text, and the active border uses Frost 2.
 
 ```
 Background: #2E3440

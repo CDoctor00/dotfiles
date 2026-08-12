@@ -3,11 +3,19 @@
 #  install.sh — Dotfiles installer for Arch + Hyprland
 #
 #  Usage:
-#    ./install.sh                  Full installation
-#    ./install.sh --packages-only  Install packages only (no symlinks)
-#    ./install.sh --stow-only      Create symlinks only (no packages)
-#    ./install.sh --system-only    Install system files only (needs sudo)
-#    ./install.sh --dry-run        Preview actions without applying them
+#    ./install.sh                     Full installation
+#    ./install.sh --packages-only     Install packages only
+#    ./install.sh --symlinks-only     Stow configs/ only (just the symlinks)
+#    ./install.sh --root-bashrc-only  Copy configs/bash/.bashrc to /root/.bashrc only
+#    ./install.sh --link-scripts-only Link scripts/*.sh into ~/.local/bin only
+#    ./install.sh --fonts-only        Refresh the font cache only
+#    ./install.sh --system-only       Install system files only (needs sudo)
+#    ./install.sh --dry-run           Preview actions without applying them
+#
+#  The *-only flags can be combined, e.g:
+#    ./install.sh --symlinks-only --fonts-only
+#  With no flags, every step runs (packages, symlinks, root bashrc, system
+#  files, script links, font cache).
 # =============================================================================
 
 set -euo pipefail
@@ -45,18 +53,28 @@ NON_BLOCKING_AUR=(spicetify-cli)
 
 # ── Flags ─────────────────────────────────────────────────────────────────────
 PACKAGES_ONLY=false
-STOW_ONLY=false
+SYMLINKS_ONLY=false
+ROOT_BASHRC_ONLY=false
+LINK_SCRIPTS_ONLY=false
+FONTS_ONLY=false
 SYSTEM_ONLY=false
 DRY_RUN=false
 
 for arg in "$@"; do
   case $arg in
-    --packages-only) PACKAGES_ONLY=true ;;
-    --stow-only)     STOW_ONLY=true ;;
-    --system-only)   SYSTEM_ONLY=true ;;
-    --dry-run)       DRY_RUN=true ;;
+    --packages-only)     PACKAGES_ONLY=true ;;
+    --symlinks-only)     SYMLINKS_ONLY=true ;;
+    --root-bashrc-only)  ROOT_BASHRC_ONLY=true ;;
+    --link-scripts-only) LINK_SCRIPTS_ONLY=true ;;
+    --fonts-only)        FONTS_ONLY=true ;;
+    --system-only)       SYSTEM_ONLY=true ;;
+    --dry-run)           DRY_RUN=true ;;
     --help|-h)
-      echo "Usage: ./install.sh [--packages-only] [--stow-only] [--system-only] [--dry-run]"
+      echo "Usage: ./install.sh [--packages-only] [--symlinks-only] [--root-bashrc-only]"
+      echo "                    [--link-scripts-only] [--fonts-only] [--system-only] [--dry-run]"
+      echo ""
+      echo "The *-only flags can be combined, e.g: ./install.sh --symlinks-only --fonts-only"
+      echo "With no flags, every step runs."
       exit 0 ;;
     *)
       echo -e "${RED}Unknown argument: $arg${NC}"; exit 1 ;;
@@ -187,24 +205,24 @@ install_packages() {
 # ── Stow ──────────────────────────────────────────────────────────────────────
 backup_if_real() {
   local target="$1"
-  local rel_path="$2"  # Es: hypr/.config/hypr/hyprland.conf
+  local rel_path="$2"  # e.g. hypr/.config/hypr/hyprland.conf
 
-  # Se il target non esiste, non c'è nulla da backuppare
+  # If the target doesn't exist, there's nothing to back up
   [[ -e "$target" ]] || return 0
-  
-  # Se il target è un symlink diretto, lasciamo che ci pensi Stow
+
+  # If the target is already a direct symlink, let Stow handle it
   [[ -L "$target" ]] && return 0
-  
-  # FIX: Risolviamo il percorso reale assoluto del file.
-  # Se il file si trova (tramite un symlink di una cartella genitore)
-  # all'interno della nostra repository, ignoriamolo per non cancellarlo da git!
+
+  # Resolve the real absolute path of the file.
+  # If the file lives inside our repository (e.g. reached through a
+  # symlinked parent directory), skip it so we don't move it out of git!
   local real_target
   real_target="$(readlink -f "$target")"
   if [[ "$real_target" == "$DOTFILES_DIR"* ]]; then
     return 0
   fi
 
-  # A questo punto siamo certi che è un vero file estraneo alla repo.
+  # At this point we're sure it's a real file unrelated to the repo.
   local backup_dest="$BACKUP_DIR/$rel_path"
   warn "Backing up: $target → $backup_dest"
   run mkdir -p "$(dirname "$backup_dest")"
@@ -227,11 +245,11 @@ stow_packages() {
     while IFS= read -r -d '' file; do
       local rel="${file#$pkg_dir/}"
       local target="$HOME/$rel"
-      # Passiamo anche il percorso relativo con il nome del pacchetto per il backup
+      # Also pass the package-relative path, used to lay out the backup
       backup_if_real "$target" "$pkg/$rel"
     done < <(find "$pkg_dir" -not -type d -print0)
 
-    # Aggiunto anche il controllo di exit code suggerito dall'handoff
+    # Check stow's exit code so a failed package doesn't pass as OK
     if run stow --dir="$CONFIGS_DIR" --target="$HOME" "$pkg"; then
       ok "Stowed: $pkg"
     else
@@ -358,15 +376,16 @@ main() {
   check_arch
   check_not_root
 
-  if $PACKAGES_ONLY; then
-    install_packages
-  elif $STOW_ONLY; then
-    stow_packages
-    install_root_bashrc
-    install_scripts
-    refresh_fonts
-  elif $SYSTEM_ONLY; then
-    install_system_files
+  # If any *-only flag was passed, run exactly the requested steps (in a
+  # fixed, sensible order) instead of the full install.
+  if $PACKAGES_ONLY || $SYMLINKS_ONLY || $ROOT_BASHRC_ONLY || $LINK_SCRIPTS_ONLY || $FONTS_ONLY || $SYSTEM_ONLY; then
+    $PACKAGES_ONLY     && install_packages
+    $SYMLINKS_ONLY     && stow_packages
+    $ROOT_BASHRC_ONLY  && install_root_bashrc
+    $SYSTEM_ONLY       && install_system_files
+    $LINK_SCRIPTS_ONLY && install_scripts
+    $FONTS_ONLY        && refresh_fonts
+    true  # ensure a non-matching last `&&` doesn't make main() return non-zero
   else
     install_packages
     stow_packages

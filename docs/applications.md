@@ -2,6 +2,20 @@
 
 Complete list of applications used in this setup, grouped by category.
 
+This is the human-readable, categorized view. The authoritative, machine-generated package lists — kept in sync with the actual system by `./scripts/sync.sh --packages-only` — live in [`packages/packages.txt`](../packages/packages.txt) (official) and [`packages/aur-packages.txt`](../packages/aur-packages.txt) (AUR). If this file and those lists ever disagree, the `.txt` files reflect what's actually installed.
+
+Packages marked `(AUR)` come from the Arch User Repository; everything else is in the official repos.
+
+## Contents
+
+- [Desktop Environment](#desktop-environment)
+- [Terminal & Shell](#terminal--shell)
+- [Development](#development)
+- [System Tools](#system-tools)
+- [Communication & Productivity](#communication--productivity)
+- [Multimedia](#multimedia)
+- [System & Utilities](#system--utilities)
+
 ---
 
 ## Desktop Environment
@@ -47,17 +61,17 @@ Complete list of applications used in this setup, grouped by category.
 
 ## System Tools
 
-| Application       | Package        | Description                               |
-| ----------------- | -------------- | ----------------------------------------- |
-| File Manager      | `thunar`       | Graphical file manager                    |
-| File Sharing      | `localsend`    | Cross-platform local network file sharing |
-| Archive Manager   | `unzip`        | Archive extraction                        |
-| Clipboard Manager | `clipse` (AUR) | TUI clipboard manager with image preview  |
-| Screenshot        | `hyprshot`     | Screenshot tool for Hyprland              |
+| Application       | Package           | Description                               |
+| ----------------- | ----------------- | ----------------------------------------- |
+| File Manager      | `thunar`          | Graphical file manager                    |
+| File Sharing      | `localsend` (AUR) | Cross-platform local network file sharing |
+| Archive Manager   | `unzip`           | Archive extraction                        |
+| Clipboard Manager | `clipse`          | TUI clipboard manager with image preview  |
+| Screenshot        | `hyprshot`        | Screenshot tool for Hyprland              |
 
 ---
 
-## Applications
+## Communication & Productivity
 
 | Application      | Package            | Description                    |
 | ---------------- | ------------------ | ------------------------------ |

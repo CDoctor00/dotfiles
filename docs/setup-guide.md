@@ -34,10 +34,12 @@ chmod +x scripts/install.sh scripts/sync.sh
 
 # Or selectively:
 ./scripts/install.sh --packages-only    # only install packages
-./scripts/install.sh --stow-only        # only create symlinks
+./scripts/install.sh --symlinks-only    # just the Stow symlinks
 ./scripts/install.sh --system-only      # only install /etc and /usr files
 ./scripts/install.sh --dry-run          # preview without applying
 ```
+
+See [`docs/scripts.md`](scripts.md) for exactly what each flag does and what `install.sh` touches on the system.
 
 > **Note:** If the scripts lose their executable bit (e.g. after cloning on some systems), restore it and make git track it permanently:
 >
@@ -48,6 +50,12 @@ chmod +x scripts/install.sh scripts/sync.sh
 > ```
 
 > After the installation, a log file is saved to `logs/install_<timestamp>.log`. Check it if any step reported warnings or errors.
+
+Once the install finishes, run the health-check before rebooting — it's much easier to fix a broken symlink or a missing binary now than to debug it after logging into a fresh Hyprland session:
+
+```bash
+./scripts/status.sh
+```
 
 ---
 
@@ -67,6 +75,8 @@ systemctl --user enable --now pipewire pipewire-pulse wireplumber
 ---
 
 ## 4. Optional hardening
+
+These steps harden the system but aren't required for Hyprland to work — skip this section on a first install and come back to it later if you want.
 
 ```bash
 # Firewall
@@ -104,6 +114,15 @@ sudo reboot
 # SDDM should appear — select Hyprland and log in
 ```
 
+If SDDM itself doesn't appear (boots straight to a text login or a black screen with no login prompt), the display manager service likely isn't enabled or failed to start — check its status before assuming Hyprland is the problem:
+
+```bash
+systemctl status sddm
+journalctl -u sddm -b --no-pager | tail -50
+```
+
+If SDDM is running but Hyprland fails after you log in, see **Black screen after launching Hyprland** below.
+
 ---
 
 ## Troubleshooting
@@ -116,27 +135,37 @@ Before digging into a specific symptom, run the health-check script — it catch
 
 See [`docs/scripts.md`](scripts.md) for details on what it checks.
 
-**Black screen after launching Hyprland**
-Check your monitor name and update `hyprland.conf`:
+### Black screen after launching Hyprland
+
+SDDM started fine, but the screen goes black after selecting Hyprland. Usually a wrong or stale monitor name in `hyprland.conf`. Find the correct name and update the `monitor=` line:
 
 ```bash
-hyprctl monitors    # find your monitor name
+hyprctl monitors    # find your monitor name, e.g. "DP-1" or "eDP-1"
 ```
 
-**Waybar not starting**
+Edit `~/.config/hypr/hyprland.conf`, update the `monitor=` line with the name found above, then reload with `hyprctl reload` or restart Hyprland.
+
+### Waybar not starting
+
+Run it in the foreground to see the actual error instead of guessing:
 
 ```bash
 waybar 2>&1 | head -50
 ```
 
-**No audio**
+Most common cause: a syntax error in `~/.config/waybar/config.jsonc` or `style.css` introduced by a recent edit.
+
+### No audio
 
 ```bash
 systemctl --user status pipewire pipewire-pulse wireplumber
 systemctl --user restart pipewire
 ```
 
-**Screen tearing**
+If the services are running but there's still no sound, check the output device with `wpctl status` and make sure the right sink is selected as default.
+
+### Screen tearing
+
 Add to `hyprland.conf`:
 
 ```ini
@@ -145,10 +174,13 @@ misc {
 }
 ```
 
-**Stow conflict error**
+### Stow conflict error
+
 Stow refuses to overwrite existing real files. Back up the conflicting file and retry:
 
 ```bash
 mv ~/.config/hypr ~/.config/hypr.bak
-cd ~/.dotfiles && stow --dir=configs --target=$HOME hypr
+stow --dir=/home/<user>/.dotfiles/configs --target=/home/<user> hypr
 ```
+
+See [`docs/managing.md`](managing.md#resolving-conflicts) for more on resolving Stow conflicts, and [`docs/managing.md`](managing.md#the-stow-command) for why the full absolute path is required here instead of `~`.

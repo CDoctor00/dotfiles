@@ -13,11 +13,11 @@ All three scripts share the same conventions:
 
 ## Quick reference
 
-| Script       | Purpose                                       | Flags                                                          | Needs sudo                                | Stops on running system?  |
-| ------------ | --------------------------------------------- | -------------------------------------------------------------- | ----------------------------------------- | ------------------------- |
-| `install.sh` | Deploy the repo onto a system                 | `--packages-only` `--stow-only` `--system-only` `--dry-run`    | Yes (packages, root bashrc, system files) | No — writes/changes files |
-| `sync.sh`    | Pull the running system's state into the repo | `--packages-only` `--system-only` `--versions-only`            | Yes (system files)                        | No — writes into the repo |
-| `status.sh`  | Read-only health-check, no writes             | none required; optionally pass binary names to override step 3 | No                                        | No — diagnostic only      |
+| Script       | Purpose                                       | Flags                                                                                                                                                         | Needs sudo                                | Stops on running system?  |
+| ------------ | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- | ------------------------- |
+| `install.sh` | Deploy the repo onto a system                 | `--packages-only` `--symlinks-only` `--root-bashrc-only` `--link-scripts-only` `--fonts-only` `--system-only` `--dry-run` (the `*-only` flags are combinable) | Yes (packages, root bashrc, system files) | No — writes/changes files |
+| `sync.sh`    | Pull the running system's state into the repo | `--packages-only` `--system-only` `--versions-only`                                                                                                           | Yes (system files)                        | No — writes into the repo |
+| `status.sh`  | Read-only health-check, no writes             | none required; optionally pass binary names to override step 3                                                                                                | No                                        | No — diagnostic only      |
 
 Run any script with no flags for its full behavior; each flag narrows it to a single phase.
 
@@ -28,14 +28,17 @@ Run any script with no flags for its full behavior; each flag narrows it to a si
 Deploys the repo onto a system: installs packages, creates Stow symlinks, installs system-level files, and a few smaller housekeeping steps.
 
 ```bash
-./scripts/install.sh                  # full installation
-./scripts/install.sh --packages-only  # install packages only
-./scripts/install.sh --stow-only      # create symlinks + root bashrc + ~/.local/bin links + font cache
-./scripts/install.sh --system-only    # install /etc and /usr files only (needs sudo)
-./scripts/install.sh --dry-run        # preview every command without applying it
+./scripts/install.sh                        # full installation
+./scripts/install.sh --packages-only         # install packages only
+./scripts/install.sh --symlinks-only         # create symlinks only
+./scripts/install.sh --root-bashrc-only      # copy configs/bash/.bashrc to /root/.bashrc only
+./scripts/install.sh --link-scripts-only     # link scripts/*.sh into ~/.local/bin only
+./scripts/install.sh --fonts-only            # refresh the font cache only
+./scripts/install.sh --system-only           # install /etc and /usr files only (needs sudo)
+./scripts/install.sh --dry-run               # preview every command without applying it
 ```
 
-> **`--stow-only` is not just Stow.** It also installs `/root/.bashrc`, links every script in `scripts/*.sh` into `~/.local/bin`, and refreshes the font cache — everything in the full install except packages and system files. If you only want symlinks with nothing else, run `stow` directly (see [`docs/managing.md`](managing.md)).
+> Each `*-only` flag runs exactly one step. Combine them freely, e.g. `./install.sh --symlinks-only --fonts-only`. With no flags, every step runs.
 
 ### What each phase does
 

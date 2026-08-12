@@ -11,6 +11,10 @@
 #    ./sync.sh --packages-only  Only regenerate package lists
 #    ./sync.sh --system-only    Only copy system files into repo
 #    ./sync.sh --versions-only  Only update component versions in README
+#
+#  The *-only flags can be combined, e.g:
+#    ./sync.sh --packages-only --versions-only
+#  With no flags, every step runs.
 # =============================================================================
 
 set -euo pipefail
@@ -48,6 +52,9 @@ for arg in "$@"; do
     --versions-only) VERSIONS_ONLY=true ;;
     --help|-h)
       echo "Usage: ./sync.sh [--packages-only] [--system-only] [--versions-only]"
+      echo ""
+      echo "The *-only flags can be combined, e.g: ./sync.sh --packages-only --versions-only"
+      echo "With no flags, every step runs."
       exit 0 ;;
     *)
       echo -e "${YELLOW}Unknown argument: $arg${NC}"; exit 1 ;;
@@ -180,12 +187,13 @@ main() {
 
   init_log
 
-  if $PACKAGES_ONLY; then
-    sync_packages
-  elif $SYSTEM_ONLY; then
-    sync_system_files
-  elif $VERSIONS_ONLY; then
-    update_versions
+  # If any *-only flag was passed, run exactly the requested steps instead
+  # of the full sync.
+  if $PACKAGES_ONLY || $SYSTEM_ONLY || $VERSIONS_ONLY; then
+    $PACKAGES_ONLY && sync_packages
+    $SYSTEM_ONLY   && sync_system_files
+    $VERSIONS_ONLY && update_versions
+    true  # ensure a non-matching last `&&` doesn't make main() return non-zero
   else
     sync_packages
     sync_system_files
