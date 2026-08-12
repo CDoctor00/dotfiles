@@ -132,7 +132,7 @@ load_system_files() {
     error "system-files.conf not found: $SYSTEM_FILES_CONF"
     exit 1
   fi
-  mapfile -t SYSTEM_FILES < <(grep -v '^\s*#' "$SYSTEM_FILES_CONF" | grep -v '^\s*$')
+  mapfile -t SYSTEM_FILES < <(command grep -v '^\s*#' "$SYSTEM_FILES_CONF" | command grep -v '^\s*$')
 }
 
 # ── AUR helper ────────────────────────────────────────────────────────────────
@@ -149,7 +149,7 @@ detect_or_install_aur_helper() {
   run sudo pacman -S --needed --noconfirm git base-devel
   run git clone https://aur.archlinux.org/yay.git /tmp/yay-install
   run "(cd /tmp/yay-install && makepkg -si --noconfirm)"
-  run rm -rf /tmp/yay-install
+  run command rm -rf /tmp/yay-install
   AUR_HELPER="yay"
   ok "yay installed."
 }
@@ -161,7 +161,7 @@ install_packages() {
 
   step "Installing official packages"
   if [[ -f "$PACKAGES_FILE" ]]; then
-    run "grep -v '^\s*#' '$PACKAGES_FILE' | grep -v '^\s*$' | sudo pacman -S --needed --noconfirm -"
+    run "command grep -v '^\s*#' '$PACKAGES_FILE' | command grep -v '^\s*$' | sudo pacman -S --needed --noconfirm -"
     ok "Official packages installed."
   else
     warn "packages.txt not found, skipping."
@@ -174,7 +174,7 @@ install_packages() {
     return
   fi
 
-  mapfile -t aur_pkgs < <(grep -v '^\s*#' "$AUR_PACKAGES_FILE" | grep -v '^\s*$')
+  mapfile -t aur_pkgs < <(command grep -v '^\s*#' "$AUR_PACKAGES_FILE" | command grep -v '^\s*$')
   for pkg in "${aur_pkgs[@]}"; do
     # Check if this package is in the non-blocking list
     local non_blocking=false
@@ -226,7 +226,7 @@ backup_if_real() {
   local backup_dest="$BACKUP_DIR/$rel_path"
   warn "Backing up: $target → $backup_dest"
   run mkdir -p "$(dirname "$backup_dest")"
-  run mv "$target" "$backup_dest"
+  run command mv "$target" "$backup_dest"
 }
 
 stow_packages() {
@@ -247,7 +247,7 @@ stow_packages() {
       local target="$HOME/$rel"
       # Also pass the package-relative path, used to lay out the backup
       backup_if_real "$target" "$pkg/$rel"
-    done < <(find "$pkg_dir" -not -type d -print0)
+    done < <(command find "$pkg_dir" -not -type d -print0)
 
     # Check stow's exit code so a failed package doesn't pass as OK
     if run stow --dir="$CONFIGS_DIR" --target="$HOME" "$pkg"; then

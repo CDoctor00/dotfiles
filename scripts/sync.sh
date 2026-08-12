@@ -81,28 +81,52 @@ load_system_files() {
     error "system-files.conf not found: $SYSTEM_FILES_CONF"
     exit 1
   fi
-  mapfile -t SYSTEM_FILES < <(grep -v '^\s*#' "$SYSTEM_FILES_CONF" | grep -v '^\s*$')
+  mapfile -t SYSTEM_FILES < <(command grep -v '^\s*#' "$SYSTEM_FILES_CONF" | command grep -v '^\s*$')
 }
 
 # ── Package lists ─────────────────────────────────────────────────────────────
+# IMPORTANT: never write directly to the destination file with a bare `>`.
+# A redirection truncates the target the instant the command is launched,
+# *before* its success/failure is known — so a failed command still leaves
+# the destination empty. Always stage output in a temp file first and `mv`
+# it into place only once we've confirmed it's good.
 sync_packages() {
   step "Syncing package lists"
   mkdir -p "$PACKAGES_DIR"
+  local tmp
 
   log "Generating packages/packages.txt..."
-  if pacman -Qqen > "$PACKAGES_DIR/packages.txt"; then
+  tmp="$(mktemp)"
+  if pacman -Qqen > "$tmp"; then
+    command mv -f "$tmp" "$PACKAGES_DIR/packages.txt"
     ok "packages.txt updated ($(wc -l < "$PACKAGES_DIR/packages.txt") packages)"
   else
-    warn "Failed to generate packages.txt"
+    command rm -f "$tmp"
+    warn "Failed to generate packages.txt — existing file left untouched"
   fi
 
   log "Generating packages/aur-packages.txt..."
-  local exclude_pattern
+  local exclude_pattern pacman_rc raw
   exclude_pattern=$(printf '^%s$\n' "${AUR_EXCLUDE[@]}" | paste -sd'|')
-  if pacman -Qqem | grep -Ev "$exclude_pattern" > "$PACKAGES_DIR/aur-packages.txt"; then
-    ok "aur-packages.txt updated ($(wc -l < "$PACKAGES_DIR/aur-packages.txt") packages)"
+  raw="$(mktemp)"
+
+  # Query pacman on its own first, so we can tell "pacman actually failed"
+  # apart from "grep found zero matching lines" (grep -v exits 1 when it
+  # filters out everything, which is a legitimate outcome, not an error).
+  set +e
+  pacman -Qqem > "$raw"
+  pacman_rc=$?
+  set -e
+
+  if [[ $pacman_rc -ne 0 ]]; then
+    command rm -f "$raw"
+    warn "Failed to generate aur-packages.txt (pacman -Qqem failed) — existing file left untouched"
   else
-    warn "Failed to generate aur-packages.txt"
+    tmp="$(mktemp)"
+    command grep -Ev "$exclude_pattern" "$raw" > "$tmp" || true
+    command rm -f "$raw"
+    command mv -f "$tmp" "$PACKAGES_DIR/aur-packages.txt"
+    ok "aur-packages.txt updated ($(wc -l < "$PACKAGES_DIR/aur-packages.txt") packages)"
   fi
 }
 
@@ -139,13 +163,13 @@ update_versions() {
 
   local hyprland hyprlock waybar kitty rofi dunst kernel
 
-  hyprland=$(hyprctl version 2>/dev/null | grep -oP 'Hyprland \K[0-9.]+' | head -1)
-  hyprlock=$(hyprlock --version 2>&1 | grep -oP 'v\K[0-9.]+' | head -1)
-  waybar=$(waybar --version 2>&1 | grep -oP 'v\K[0-9.]+' | head -1)
-  kitty=$(kitty --version 2>/dev/null | grep -oP '[0-9.]+' | head -1)
-  rofi=$(rofi -version 2>/dev/null | grep -oP 'Version: \K[0-9.]+' | head -1)
-  dunst=$(dunst --version 2>/dev/null | grep -oP '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
-  kernel=$(uname -r | grep -oP '^[0-9]+\.[0-9]+\.[0-9]+')
+  hyprland=$(hyprctl version 2>/dev/null | command grep -oP 'Hyprland \K[0-9.]+' | head -1)
+  hyprlock=$(hyprlock --version 2>&1 | command grep -oP 'v\K[0-9.]+' | head -1)
+  waybar=$(waybar --version 2>&1 | command grep -oP 'v\K[0-9.]+' | head -1)
+  kitty=$(kitty --version 2>/dev/null | command grep -oP '[0-9.]+' | head -1)
+  rofi=$(rofi -version 2>/dev/null | command grep -oP 'Version: \K[0-9.]+' | head -1)
+  dunst=$(dunst --version 2>/dev/null | command grep -oP '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+  kernel=$(uname -r | command grep -oP '^[0-9]+\.[0-9]+\.[0-9]+')
 
   log "Detected versions — Kernel: ${kernel:-n/a}, Hyprland: ${hyprland:-n/a}, Hyprlock: ${hyprlock:-n/a}, Waybar: ${waybar:-n/a}, Kitty: ${kitty:-n/a}, Rofi: ${rofi:-n/a}, Dunst: ${dunst:-n/a}"
 

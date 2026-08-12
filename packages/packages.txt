@@ -5,7 +5,6 @@ base-devel
 bat
 bitwarden
 bluetui
-bluez-utils
 btop
 btrfs-progs
 cage
