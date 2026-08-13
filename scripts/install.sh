@@ -10,10 +10,13 @@
 #    ./install.sh --link-scripts-only Link scripts/*.sh into ~/.local/bin only
 #    ./install.sh --fonts-only        Refresh the font cache only
 #    ./install.sh --system-only       Install system files only (needs sudo)
+#    ./install.sh --unstow-only       Remove all Stow symlinks (undo, repo files untouched)
 #    ./install.sh --dry-run           Preview actions without applying them
 #
 #  The *-only flags can be combined, e.g:
 #    ./install.sh --symlinks-only --fonts-only
+#  --unstow-only is the exception: it undoes --symlinks-only, so combining
+#  the two in the same run is contradictory and not a supported use case.
 #  With no flags, every step runs (packages, symlinks, root bashrc, system
 #  files, script links, font cache).
 # =============================================================================
@@ -58,6 +61,7 @@ ROOT_BASHRC_ONLY=false
 LINK_SCRIPTS_ONLY=false
 FONTS_ONLY=false
 SYSTEM_ONLY=false
+UNSTOW_ONLY=false
 DRY_RUN=false
 
 for arg in "$@"; do
@@ -68,10 +72,12 @@ for arg in "$@"; do
     --link-scripts-only) LINK_SCRIPTS_ONLY=true ;;
     --fonts-only)        FONTS_ONLY=true ;;
     --system-only)       SYSTEM_ONLY=true ;;
+    --unstow-only)       UNSTOW_ONLY=true ;;
     --dry-run)           DRY_RUN=true ;;
     --help|-h)
       echo "Usage: ./install.sh [--packages-only] [--symlinks-only] [--root-bashrc-only]"
-      echo "                    [--link-scripts-only] [--fonts-only] [--system-only] [--dry-run]"
+      echo "                    [--link-scripts-only] [--fonts-only] [--system-only]"
+      echo "                    [--unstow-only] [--dry-run]"
       echo ""
       echo "The *-only flags can be combined, e.g: ./install.sh --symlinks-only --fonts-only"
       echo "With no flags, every step runs."
@@ -378,13 +384,14 @@ main() {
 
   # If any *-only flag was passed, run exactly the requested steps (in a
   # fixed, sensible order) instead of the full install.
-  if $PACKAGES_ONLY || $SYMLINKS_ONLY || $ROOT_BASHRC_ONLY || $LINK_SCRIPTS_ONLY || $FONTS_ONLY || $SYSTEM_ONLY; then
+  if $PACKAGES_ONLY || $SYMLINKS_ONLY || $ROOT_BASHRC_ONLY || $LINK_SCRIPTS_ONLY || $FONTS_ONLY || $SYSTEM_ONLY || $UNSTOW_ONLY; then
     $PACKAGES_ONLY     && install_packages
     $SYMLINKS_ONLY     && stow_packages
     $ROOT_BASHRC_ONLY  && install_root_bashrc
     $SYSTEM_ONLY       && install_system_files
     $LINK_SCRIPTS_ONLY && install_scripts
     $FONTS_ONLY        && refresh_fonts
+    $UNSTOW_ONLY       && unstow_packages
     true  # ensure a non-matching last `&&` doesn't make main() return non-zero
   else
     install_packages
