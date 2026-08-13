@@ -48,7 +48,7 @@ IGNORED_SYMLINK_DIRS=(
 
 # Critical binaries to check in PATH. Overridable by passing binary names
 # as script arguments, e.g: ./status.sh go stow hyprctl rofi
-DEFAULT_CRITICAL_BINS=(go stow hyprctl hyprpaper hyprlock waybar rofi kitty dunst)
+DEFAULT_CRITICAL_BINS=(go stow hyprctl hyprpaper hyprlock waybar rofi kitty dunst clipse)
 
 # ── Flags ─────────────────────────────────────────────────────────────────────
 for arg in "$@"; do
