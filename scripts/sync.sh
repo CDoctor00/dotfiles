@@ -190,7 +190,7 @@ summary() {
   echo -e "${BOLD}${GREEN}════════════════════════════════════════${NC}"
   echo ""
   echo -e "  ${CYAN}Next step:${NC}"
-  echo -e "  • ${BOLD}git add -A && git commit -m 'chore: sync'${NC}"
+  echo -e "  • ${BOLD}git add -A && git commit -m 'CHORE: sync'${NC}"
   echo -e "  • Log saved to: ${YELLOW}$LOG_FILE${NC}"
   echo ""
 }

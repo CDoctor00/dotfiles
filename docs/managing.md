@@ -166,9 +166,9 @@ Whether you added a Stow package or a system file, always close the loop by upda
 1. Update the inventory tables in [`README.md`](../README.md)
 2. Update [`docs/keybindings.md`](keybindings.md) if new keybindings were introduced
 3. Update [`docs/theming.md`](theming.md) if the change affects colors, fonts or appearance
-4. Commit everything:
+4. Commit everything, following the convention in [`CONTRIBUTING.md`](../CONTRIBUTING.md):
 
 ```bash
 git add -A
-git commit -m "FEAT: description of the change"
+git commit -m "FEAT(<scope>): description of the change"
 ```

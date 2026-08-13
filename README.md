@@ -84,6 +84,7 @@ Key component versions this configuration is tested against. Hyprland configurat
 - [`docs/scripts.md`](docs/scripts.md) — reference for `install.sh`, `sync.sh` and `status.sh`
 - [`docs/setup-guide.md`](docs/setup-guide.md) — step-by-step post Arch install guide
 - [`docs/theming.md`](docs/theming.md) — colors, fonts, GTK theme choices
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — commit message convention
 
 ---
 
@@ -159,7 +160,11 @@ dotfiles/
 │   └── sddm-theme/
 │       └── silent/                 → /usr/share/sddm/themes/silent/ (modified files only)
 │
-└── .gitignore
+├── .gitignore
+├── .gitattributes
+│
+├── CONTRIBUTING.md
+└── README.md
 ```
 
 ---
@@ -227,7 +232,7 @@ Since configs are symlinked, just edit normally and commit:
 # Edit any config file as usual, then:
 cd ~/.dotfiles
 git add -A
-git commit -m "feat(hypr): adjust border radius"
+git commit -m "FEAT(hypr): adjust border radius"
 git push
 ```
 
@@ -239,7 +244,7 @@ git push
 ./scripts/sync.sh --system-only    # only copy system files into repo
 ./scripts/sync.sh --versions-only  # only refresh the version table in this README
 
-git add -A && git commit -m "chore: sync"
+git add -A && git commit -m "CHORE: sync"
 ```
 
 > After syncing, a log file is saved to `logs/sync_<timestamp>.log`. Check it if any step reported warnings or errors.
