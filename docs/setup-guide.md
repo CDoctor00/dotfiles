@@ -27,7 +27,7 @@ sudo pacman -S --needed git stow
 
 git clone https://github.com/CDoctor00/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
-chmod +x scripts/install.sh scripts/sync.sh
+chmod +x scripts/install.sh scripts/sync.sh scripts/status.sh
 
 # Full install (packages + symlinks + system files)
 ./scripts/install.sh
@@ -44,8 +44,8 @@ See [`docs/scripts.md`](scripts.md) for exactly what each flag does and what `in
 > **Note:** If the scripts lose their executable bit (e.g. after cloning on some systems), restore it and make git track it permanently:
 >
 > ```bash
-> chmod +x scripts/install.sh scripts/sync.sh
-> git update-index --chmod=+x scripts/install.sh scripts/sync.sh
+> chmod +x scripts/install.sh scripts/sync.sh scripts/status.sh
+> git update-index --chmod=+x scripts/install.sh scripts/sync.sh scripts/status.sh
 > git commit -m "CHORE: restore executable bit on scripts"
 > ```
 

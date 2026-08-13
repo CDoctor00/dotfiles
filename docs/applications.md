@@ -28,6 +28,7 @@ Packages marked `(AUR)` come from the Arch User Repository; everything else is i
 | Power Menu          | `rofi-wayland`    | Power menu (using adi1090x type-2 style-7)           |
 | Notification Daemon | `dunst`           | Lightweight notification manager                     |
 | Wallpaper           | `hyprpaper`       | Wallpaper manager for Hyprland                       |
+| Lock Screen         | `hyprlock`        | Screen locker for Hyprland                           |
 | Night Light         | `hyprsunset`      | Blue light filter (similar to redshift)              |
 | Authentication      | `hyprpolkitagent` | Polkit authentication agent for Hyprland             |
 | Display Manager     | `sddm`            | Login manager with silent theme                      |
@@ -66,8 +67,9 @@ Packages marked `(AUR)` come from the Arch User Repository; everything else is i
 | File Manager      | `thunar`          | Graphical file manager                    |
 | File Sharing      | `localsend` (AUR) | Cross-platform local network file sharing |
 | Archive Manager   | `unzip`           | Archive extraction                        |
-| Clipboard Manager | `clipse`          | TUI clipboard manager with image preview  |
+| Clipboard Manager | `clipse` (AUR)    | TUI clipboard manager with image preview  |
 | Screenshot        | `hyprshot`        | Screenshot tool for Hyprland              |
+| Media Key Control | `playerctl`       | Media key bindings (play/pause/next/prev) |
 
 ---
 
@@ -85,13 +87,13 @@ Packages marked `(AUR)` come from the Arch User Repository; everything else is i
 
 ## Multimedia
 
-| Application   | Package           | Description                             |
-| ------------- | ----------------- | --------------------------------------- |
-| Video Player  | `vlc`             | Primary video player with codec support |
-| Image Viewer  | `loupe`           | Image Viewer by GNOME suite             |
-| Music         | `spotify` (AUR)   | Music streaming                         |
-| Spotify Theme | `spicetify` (AUR) | Spotify customization via Marketplace   |
-| Audio Control | `pavucontrol`     | PulseAudio/Pipewire volume control      |
+| Application   | Package               | Description                             |
+| ------------- | --------------------- | --------------------------------------- |
+| Video Player  | `vlc`                 | Primary video player with codec support |
+| Image Viewer  | `loupe`               | Image Viewer by GNOME suite             |
+| Music         | `spotify` (AUR)       | Music streaming                         |
+| Spotify Theme | `spicetify-cli` (AUR) | Spotify customization via Marketplace   |
+| Audio Control | `pavucontrol`         | PulseAudio/Pipewire volume control      |
 
 ---
 

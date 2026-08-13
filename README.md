@@ -101,7 +101,7 @@ git clone https://github.com/CDoctor00/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 
 # 3. Make scripts executable
-chmod +x scripts/install.sh scripts/sync.sh
+chmod +x scripts/install.sh scripts/sync.sh scripts/status.sh
 
 # 4. Run the installer
 ./scripts/install.sh
@@ -177,20 +177,20 @@ Configurations are managed in two different ways depending on where they live on
 
 #### Stow packages
 
-| Package    | Source in repo                             | Links to                                      |
-| ---------- | ------------------------------------------ | --------------------------------------------- |
-| bash       | `configs/bash/.bashrc`, `.bash_profile`    | `~/.bashrc`, `/root/.bashrc`, `.bash_profile` |
-| clipse     | `configs/clipse/.config/clipse/`           | `~/.config/clipse/`                           |
-| dunst      | `configs/dunst/.config/dunst/`             | `~/.config/dunst/`                            |
-| face       | `configs/face/.face`                       | `~/.face`                                     |
-| fontconfig | `configs/fontconfig/.config/fontconfig/`   | `~/.config/fontconfig/`                       |
-| fonts      | `configs/fonts/.local/share/fonts/`        | `~/.local/share/fonts/`                       |
-| gtk        | `configs/gtk/.config/gtk-3.0/`, `gtk-4.0/` | `~/.config/gtk-3.0/`, `gtk-4.0/`              |
-| hypr       | `configs/hypr/.config/hypr/`               | `~/.config/hypr/`                             |
-| kitty      | `configs/kitty/.config/kitty/`             | `~/.config/kitty/`                            |
-| rofi       | `configs/rofi/.config/rofi/`               | `~/.config/rofi/`                             |
-| spicetify  | `configs/spicetify/.config/spicetify/`     | `~/.config/spicetify/`                        |
-| waybar     | `configs/waybar/.config/waybar/`           | `~/.config/waybar/`                           |
+| Package    | Source in repo                             | Links to                         |
+| ---------- | ------------------------------------------ | -------------------------------- |
+| bash       | `configs/bash/.bashrc`, `.bash_profile`    | `~/.bashrc`, `~/.bash_profile`   |
+| clipse     | `configs/clipse/.config/clipse/`           | `~/.config/clipse/`              |
+| dunst      | `configs/dunst/.config/dunst/`             | `~/.config/dunst/`               |
+| face       | `configs/face/.face`                       | `~/.face`                        |
+| fontconfig | `configs/fontconfig/.config/fontconfig/`   | `~/.config/fontconfig/`          |
+| fonts      | `configs/fonts/.local/share/fonts/`        | `~/.local/share/fonts/`          |
+| gtk        | `configs/gtk/.config/gtk-3.0/`, `gtk-4.0/` | `~/.config/gtk-3.0/`, `gtk-4.0/` |
+| hypr       | `configs/hypr/.config/hypr/`               | `~/.config/hypr/`                |
+| kitty      | `configs/kitty/.config/kitty/`             | `~/.config/kitty/`               |
+| rofi       | `configs/rofi/.config/rofi/`               | `~/.config/rofi/`                |
+| spicetify  | `configs/spicetify/.config/spicetify/`     | `~/.config/spicetify/`           |
+| waybar     | `configs/waybar/.config/waybar/`           | `~/.config/waybar/`              |
 
 > **Note on bash**: The root user's bashrc is copied to `/root/.bashrc` via `install.sh` since it cannot use symlinks. When updating the configuration, run `./install.sh --symlinks-only --root-bashrc-only` to sync changes to both the user and root bashrc files.
 
@@ -198,12 +198,13 @@ Configurations are managed in two different ways depending on where they live on
 
 Managed via `scripts/system-files.conf`. Only modified files are tracked — the base SDDM theme is installed via AUR.
 
-| File             | Source in repo                                 | Installed to                             |
-| ---------------- | ---------------------------------------------- | ---------------------------------------- |
-| Pacman config    | `system/pacman/pacman.conf`                    | `/etc/pacman.conf`                       |
-| SDDM config      | `system/sddm/sddm.conf`                        | `/etc/sddm.conf`                         |
-| SDDM custom.conf | `system/sddm-theme/silent/configs/custom.conf` | `/usr/share/sddm/themes/silent/configs/` |
-| SDDM metadata    | `system/sddm-theme/silent/metadata.desktop`    | `/usr/share/sddm/themes/silent/`         |
+| File             | Source in repo                                 | Installed to                                                     |
+| ---------------- | ---------------------------------------------- | ---------------------------------------------------------------- |
+| Pacman config    | `system/pacman/pacman.conf`                    | `/etc/pacman.conf`                                               |
+| SDDM config      | `system/sddm/sddm.conf`                        | `/etc/sddm.conf`                                                 |
+| SDDM custom.conf | `system/sddm-theme/silent/configs/custom.conf` | `/usr/share/sddm/themes/silent/configs/`                         |
+| SDDM metadata    | `system/sddm-theme/silent/metadata.desktop`    | `/usr/share/sddm/themes/silent/`                                 |
+| SDDM wallpaper   | `assets/wallpapers/wallpaper_0.png`            | `/usr/share/sddm/themes/silent/backgrounds/custom_wallpaper.png` |
 
 For detailed instructions on adding or removing configurations, see [`docs/managing.md`](docs/managing.md).
 

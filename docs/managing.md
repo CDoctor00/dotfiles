@@ -55,8 +55,24 @@ mv ~/.config/<new_package> ~/.dotfiles/configs/<new_package>/.config/
 stow --dir=/home/<user>/.dotfiles/configs --target=/home/<user> <new_package>
 
 # 4. Verify the symlink was created correctly
-ls -la ~/.config/<new_package>
+ls -ld ~/.config/<new_package>
 # Expected: ~/.config/<new_package> -> /home/<user>/.dotfiles/configs/<new_package>/.config/<new_package>
+```
+
+> Note: use `ls -ld` (not `ls -la`) to inspect the symlink itself — `ls -la` on the path follows the link and lists its target's contents instead.
+
+#### Step 5 (conditional): register a critical binary
+
+Does this package need a check 3 entry in `status.sh`? See [`docs/scripts.md`](scripts.md#statussh) for what a "critical binary" is and why it matters. Quick criteria to decide:
+
+- Does the package wrap an actual **executable/daemon**, not just passive config, styling, or assets? (`hypr`, `waybar`, `dunst`, `clipse` → yes; `fonts`, `fontconfig`, `gtk`, `face` → no, nothing to check)
+- Is that executable invoked **automatically** by something else (an `exec-once` in `hyprland.conf`, a keybind, an autostart entry, a systemd/user service) — i.e. would you _not_ immediately notice if it silently failed to launch?
+- Is it installed through a **fragile path** (manual build, Go/Cargo/pip install, an AUR package with a history of broken builds) rather than a stable official-repo package?
+
+```bash
+# 5. If yes to the first two, add the binary name to `DEFAULT_CRITICAL_BINS` in `scripts/status.sh`:
+DEFAULT_CRITICAL_BINS=(go stow hyprctl hyprpaper hyprlock waybar rofi kitty dunst clipse <new_binary>)
+# then run `./scripts/status.sh` to confirm it shows up under "Checking critical binaries in PATH"
 ```
 
 For files that live directly in `$HOME` (like `.bashrc`):
@@ -107,6 +123,14 @@ To remove symlinks without deleting files from the repo:
 ```bash
 stow --dir=/home/<user>/.dotfiles/configs --target=/home/<user> -D <new_package>
 ```
+
+To remove **all** packages' symlinks at once (e.g. before migrating to a new machine, or to fully undo a `--symlinks-only` run) rather than one at a time, use `install.sh`'s dedicated flag instead of looping the command above manually:
+
+```bash
+./scripts/install.sh --unstow-only
+```
+
+This iterates over every package in `configs/` and runs `stow -D` on each — repo files are untouched either way, only the symlinks in `$HOME` are removed. See [`docs/scripts.md`](scripts.md#installsh) for details.
 
 ---
 
