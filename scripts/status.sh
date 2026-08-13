@@ -185,7 +185,7 @@ check_system_alignment() {
   local checked_count=0
 
   local entries
-  mapfile -t entries < <(grep -v '^\s*#' "$SYSTEM_FILES_CONF" | grep -v '^\s*$')
+  mapfile -t entries < <(command grep -v '^\s*#' "$SYSTEM_FILES_CONF" | command grep -v '^\s*$')
 
   for entry in "${entries[@]}"; do
     local repo_path="${entry%%:*}"

@@ -100,7 +100,7 @@ run() {
   if $DRY_RUN; then
     echo -e "  ${YELLOW}dry-run:${NC} $*"
   else
-    eval "$*"
+    "$@"
   fi
 }
 
@@ -148,7 +148,7 @@ detect_or_install_aur_helper() {
   warn "No AUR helper found. Installing yay..."
   run sudo pacman -S --needed --noconfirm git base-devel
   run git clone https://aur.archlinux.org/yay.git /tmp/yay-install
-  run "(cd /tmp/yay-install && makepkg -si --noconfirm)"
+  run bash -c "cd /tmp/yay-install && makepkg -si --noconfirm"
   run command rm -rf /tmp/yay-install
   AUR_HELPER="yay"
   ok "yay installed."
@@ -161,7 +161,7 @@ install_packages() {
 
   step "Installing official packages"
   if [[ -f "$PACKAGES_FILE" ]]; then
-    run "command grep -v '^\s*#' '$PACKAGES_FILE' | command grep -v '^\s*$' | sudo pacman -S --needed --noconfirm -"
+    run bash -c "command grep -v '^\s*#' '$PACKAGES_FILE' | command grep -v '^\s*$' | sudo pacman -S --needed --noconfirm -"
     ok "Official packages installed."
   else
     warn "packages.txt not found, skipping."
