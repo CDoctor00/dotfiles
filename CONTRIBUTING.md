@@ -99,7 +99,7 @@ DEPRECATED: <what's deprecated>
 
 ```
 FEAT(clipse): add manual Go build fallback for broken AUR package
-FIX(status): protect grep with `command` in check_system_alignment
+FIX(scripts): protect grep with `command` in check_system_alignment
 DOCS: add commit message convention
 CHORE(scripts): expose unstow_packages via --unstow-only flag
 STYLE(waybar): adjust button opacity on hover

@@ -214,10 +214,9 @@ main() {
   # If any *-only flag was passed, run exactly the requested steps instead
   # of the full sync.
   if $PACKAGES_ONLY || $SYSTEM_ONLY || $VERSIONS_ONLY; then
-    $PACKAGES_ONLY && sync_packages
-    $SYSTEM_ONLY   && sync_system_files
-    $VERSIONS_ONLY && update_versions
-    true  # ensure a non-matching last `&&` doesn't make main() return non-zero
+    if $PACKAGES_ONLY; then sync_packages;      fi
+    if $SYSTEM_ONLY;   then sync_system_files;  fi
+    if $VERSIONS_ONLY; then update_versions;    fi
   else
     sync_packages
     sync_system_files

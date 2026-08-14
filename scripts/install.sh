@@ -385,14 +385,13 @@ main() {
   # If any *-only flag was passed, run exactly the requested steps (in a
   # fixed, sensible order) instead of the full install.
   if $PACKAGES_ONLY || $SYMLINKS_ONLY || $ROOT_BASHRC_ONLY || $LINK_SCRIPTS_ONLY || $FONTS_ONLY || $SYSTEM_ONLY || $UNSTOW_ONLY; then
-    $PACKAGES_ONLY     && install_packages
-    $SYMLINKS_ONLY     && stow_packages
-    $ROOT_BASHRC_ONLY  && install_root_bashrc
-    $SYSTEM_ONLY       && install_system_files
-    $LINK_SCRIPTS_ONLY && install_scripts
-    $FONTS_ONLY        && refresh_fonts
-    $UNSTOW_ONLY       && unstow_packages
-    true  # ensure a non-matching last `&&` doesn't make main() return non-zero
+    if $PACKAGES_ONLY;     then install_packages;     fi
+    if $SYMLINKS_ONLY;     then stow_packages;        fi
+    if $ROOT_BASHRC_ONLY;  then install_root_bashrc;  fi
+    if $SYSTEM_ONLY;       then install_system_files; fi
+    if $LINK_SCRIPTS_ONLY; then install_scripts;      fi
+    if $FONTS_ONLY;        then refresh_fonts;        fi
+    if $UNSTOW_ONLY;       then unstow_packages;      fi
   else
     install_packages
     stow_packages
