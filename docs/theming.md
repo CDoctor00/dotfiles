@@ -50,15 +50,23 @@ Visual choices and how to replicate them across the entire setup.
 | GTK (UI general)      | Inter              | 11pt |
 | Waybar                | Hack               | 14px |
 | Rofi                  | FiraCode Nerd Font | 12px |
-| Rofi powermenu icons  | Icomoon-Feather    | 32px |
-| Kitty (Terminal)      | FiraCode Nerd Font | 14.0 |
+| Kitty (Terminal)      | FiraCode Nerd Font | 14pt |
 | Dunst (Notifications) | FiraCode Nerd Font | 11px |
-| Icons (Waybar)        | Font Awesome 6 Pro | —    |
-| Icons (Rofi taskbar)  | Numix-Circle       | —    |
+
+## Icon Themes
+
+| Component                  | Icon theme         | Source                                   |
+| -------------------------- | ------------------ | ---------------------------------------- |
+| Dunst                      | Papirus-Dark       | explicit (`icon_theme` in dunstrc)       |
+| GTK (system-wide)          | Papirus-Dark       | explicit (`settings.ini` + dconf)        |
+| Rofi (taskbar)             | Papirus-Dark       | inherited from GTK/dconf                 |
+| Rofi (powermenu)           | Icomoon-Feather    | explicit (icon set, not GTK-inherited)   |
+| Waybar (taskbar apps)      | Papirus-Dark       | explicit (`icon-theme` in `wlr/taskbar`) |
+| Waybar (system indicators) | Font Awesome 6 Pro | explicit (glyph font, not an icon theme) |
 
 Icomoon-Feather is not available on pacman or AUR — it is tracked directly in the repo under `configs/fonts/.local/share/fonts/` and linked via stow.
 
-> This table is the source of truth for fonts and sizes. Per-application sections below restate the relevant font for convenience, but if a size ever needs changing, this is the table to update first.
+> These tables are the source of truth for fonts, sizes, and icon themes. Per-application sections below restate the relevant values for convenience, but if a font, size, or icon theme ever needs changing, these tables are the ones to update first.
 
 ---
 
@@ -171,7 +179,7 @@ Position at top with 30px height. Includes modular groups for resources, input, 
 **Key configuration:**
 
 - Margin: `10 10 0 10`
-- Taskbar icon theme: Numix-Circle
+- Taskbar icon theme: **Papirus-Dark**
 - Clock format: 24-hour with date
 
 **CSS Styling:**
@@ -234,6 +242,7 @@ button:hover {
 - Border radius: 15px
 - Lines visible: 8
 - Icon size: 20px
+- Icon theme: none set explicitly in any `.rasi` file — Rofi inherits the system GTK/dconf icon theme, which resolves to **Papirus-Dark**
 
 **Color scheme:** Background, Surface, Overlay, Text, and Frost 2 (highlight) from the [Color Scheme](#color-scheme) table — `#2E3440`, `#3B4252`, `#4C566A`, `#D8DEE9`, `#88C0D0` respectively.
 
@@ -253,7 +262,7 @@ Colors below map to Background, Overlay, Frost 2, and Aurora Orange/Red in the [
 - Gap between notifications: 8px
 - Background: semitransparent `#2E3440ee`
 - Timeout: 10s (5s for low urgency, 0s for critical)
-- Icon theme: **Papirus-Dark** — Arc icons are not installed on this system
+- Icon theme: **Papirus-Dark**
 
 **Format:** `<small>%a</small>\n<b>%s</b>\n%b` — the `%a` token shows the originating app name above the notification title, useful for browser-generated notifications (e.g. WhatsApp Web via Firefox) where the title would otherwise only show the contact name.
 

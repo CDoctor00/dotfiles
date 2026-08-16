@@ -19,12 +19,19 @@
   },
   "wlr/taskbar": {
     "format": "{icon} {name}",
+    "format-icons": {},
+    "max-length": 20,
     "icon-size": 20,
-    "icon-theme": "Numix-Circle",
+    "icon-theme": "Papirus-Dark",
     "tooltip-format": "{title}",
     "on-click": "activate",
     "on-click-middle": "close",
     "sort-by-app-id": true,
+    "rewrite": {
+      ".*Thunar.*": "Thunar",
+      ".*Mozilla Firefox.*": "Firefox",
+      ".*DBeaver Community.*": "DBeaver",
+    },
   },
   "clock": {
     "format": "  {0:%H:%M:%S}     {0:%d %b %Y}",
