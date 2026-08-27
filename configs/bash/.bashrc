@@ -101,6 +101,8 @@ alias cp='cp -i'
 alias mv='mv -i'
 alias rm='rm -i'
 
+alias fix-dropbox="sudo chown -R $USER:$USER ~/Dropbox ~/.dropbox && sudo chmod -R u+rwX ~/Dropbox ~/.dropbox"
+
 
 # ─────────────────────────────────────────
 #  GIT ALIAS
