@@ -137,13 +137,15 @@ See [`docs/scripts.md`](scripts.md) for details on what it checks.
 
 ### Black screen after launching Hyprland
 
-SDDM started fine, but the screen goes black after selecting Hyprland. Usually a wrong or stale monitor name in `hyprland.conf`. Find the correct name and update the `monitor=` line:
+SDDM started fine, but the screen goes black after selecting Hyprland. Usually a wrong or stale monitor name in `hyprland.lua`. Find the correct name and update the `hl.monitor({...})` call:
 
 ```bash
 hyprctl monitors    # find your monitor name, e.g. "DP-1" or "eDP-1"
 ```
 
-Edit `~/.config/hypr/hyprland.conf`, update the `monitor=` line with the name found above, then reload with `hyprctl reload` or restart Hyprland.
+Edit `~/.config/hypr/hyprland.lua`, update the `output` field in the `hl.monitor({...})` call with the name found above (e.g. `output = "DP-1"`), then reload with `hyprctl reload` or restart Hyprland.
+
+> **Note:** as of the Lua migration, `hyprland.lua` is the active file — `hyprland.conf` still exists in the `hypr` package but is an untouched, non-loaded fallback. Don't edit `hyprland.conf` expecting it to take effect.
 
 ### Waybar not starting
 
@@ -166,12 +168,14 @@ If the services are running but there's still no sound, check the output device 
 
 ### Screen tearing
 
-Add to `hyprland.conf`:
+Add to `hyprland.lua`:
 
-```ini
-misc {
-    vfr = true
-}
+```lua
+hl.config({
+    misc = {
+        vfr = true,
+    },
+})
 ```
 
 ### Stow conflict error

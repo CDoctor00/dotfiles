@@ -98,7 +98,7 @@ Complete keybinding reference for the system setup.
 | `XF86AudioPlay`  | Play/pause     |
 | `XF86AudioPause` | Play/pause     |
 
-> Volume and brightness bindings use Hyprland's `bindel` and repeat while the key is held. Media key bindings use `bindl` and only trigger once, on key release.
+> Volume and brightness bindings use `{ locked = true, repeating = true }` in `hyprland.lua` (the Lua equivalent of hyprlang's `bindel`), so they repeat while the key is held. Media key bindings use `{ locked = true }` (equivalent to `bindl`) and only trigger once, on key release.
 
 ---
 

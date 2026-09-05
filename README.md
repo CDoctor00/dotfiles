@@ -41,15 +41,15 @@ This repository contains all the configuration files for a fully customized Arch
 
 ## Versions
 
-Key component versions this configuration is tested against. Hyprland configurations use the **declarative `.conf` syntax** — Lua config is not in use.
+Key component versions this configuration is tested against. Hyprland configuration uses the **Lua syntax** (`hyprland.lua`), following the migration from the legacy declarative `.conf` format. The old `hyprland.conf` is kept in the `hypr` package as an untouched, non-active fallback.
 
 | Component | Version |
 | --------- | ------- |
-| Kernel    | 7.1.3   |
-| Hyprland  | 0.55.4  |
-| Hyprlock  | 0.9.5   |
+| Kernel    | 7.2.3   |
+| Hyprland  | 0.56.2  |
+| Hyprlock  | 0.9.6   |
 | Waybar    | 0.15.0  |
-| Kitty     | 0.47.4  |
+| Kitty     | 0.48.2  |
 | Rofi      | 2.0.0   |
 | Dunst     | 1.13.2  |
 

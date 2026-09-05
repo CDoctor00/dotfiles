@@ -82,149 +82,32 @@ GTK theming is managed entirely via configuration files — no GUI tool required
 - `configs/gtk/.config/gtk-4.0/settings.ini` — GTK4 settings
 - `configs/hypr/.config/hypr/dconf/interface.conf` — dconf profile loaded at Hyprland startup
 
-The dconf profile is necessary because gsettings takes precedence over `settings.ini`. Without it, GTK falls back to the Adwaita default on a fresh install. The profile is loaded via `exec-once` in `hyprland.conf`:
-
-```ini
-exec-once = dconf load /org/gnome/desktop/interface/ < ~/.config/hypr/dconf/interface.conf
-```
+The dconf profile is necessary because gsettings takes precedence over `settings.ini`. Without it, GTK falls back to the Adwaita default on a fresh install. It's loaded automatically at every Hyprland startup — see the autostart block in `configs/hypr/.config/hypr/hyprland.lua` for the exact command.
 
 ---
 
 ## Hyprland
 
-### General Settings & Borders
+Visual identity is expressed through borders, rounding, opacity, and animation feel — not raw numeric values, which live in `configs/hypr/.config/hypr/hyprland.lua` and are better read there than duplicated here (this doc's numeric values have already drifted out of sync with the real config once in the past).
 
-Border colors use Frost 2 → Frost 3 (`#88C0D0` → `#81A1C1`) for the active border, and a translucent Background (`#2E3440`) for the inactive one — see [Color Scheme](#color-scheme) for the full palette.
+- **Borders**: active windows use a Frost 2 → Frost 3 gradient (`#88C0D0` → `#81A1C1`), inactive windows use a translucent Background (`#2E3440aa`) — see [Color Scheme](#color-scheme).
+- **Corners & depth**: windows are rounded with a soft drop shadow; unfocused windows dim very slightly rather than staying fully opaque.
+- **Blur**: enabled on floating/layered surfaces at a subtle level — not a heavy frosted-glass look.
+- **Animations**: fast, minimal easing curves (no bounce/spring effects) across window open/close, workspace switches, and layers, favoring a snappy feel over decorative motion.
 
-```ini
-general {
-    gaps_in = 5
-    gaps_out = 10
-    border_size = 2
-    col.active_border = rgba(88C0D0ff) rgba(81A1C1ff) 45deg
-    col.inactive_border = rgba(2E3440aa)
-    resize_on_border = true
-    allow_tearing = false
-    layout = dwindle
-}
-```
-
-### Decorations
-
-```ini
-decoration {
-    rounding = 15
-    active_opacity = 1.0
-    inactive_opacity = 0.9
-
-    shadow {
-        enabled = true
-        range = 4
-        render_power = 3
-        color = rgba(1a1a1aee)
-    }
-
-    blur {
-        enabled = true
-        size = 3
-        passes = 1
-        vibrancy = 0.1696
-    }
-}
-```
-
-### Animations
-
-```ini
-animations {
-    enabled = true
-
-    bezier = easeOutQuint,0.25,1,0.30,1
-    bezier = easeInOutCubic,0.65,0.05,0.35,1
-    bezier = linear,0,0,1,1
-    bezier = almostLinear,0.5,0.5,0.75,1.0
-    bezier = quick,0.15,0,0.1,1
-
-    animation = windows, 1, 4, easeOutQuint, gnomed
-    animation = windowsIn, 1, 4, easeOutQuint, gnomed
-    animation = windowsOut, 1, 4, linear, gnomed
-    animation = workspaces, 1, 3, almostLinear, slidefade
-    animation = workspacesIn, 1, 3, almostLinear, slidefade
-    animation = workspacesOut, 1, 3, almostLinear, slidefade
-    animation = global, 1, 10, default
-    animation = border, 1, 5, easeOutQuint
-    animation = fadeIn, 1, 2, almostLinear
-    animation = fadeOut, 1, 2, almostLinear
-    animation = fade, 1, 3, quick
-    animation = layers, 1, 4, easeOutQuint
-    animation = layersIn, 1, 4, easeOutQuint, fade
-    animation = layersOut, 1, 1.5, linear, fade
-    animation = fadeLayersIn, 1, 2, almostLinear
-    animation = fadeLayersOut, 1, 1.5, almostLinear
-}
-```
-
-### Monitor & Display
-
-```ini
-monitor = ,3440x1440@144,auto,auto
-```
+For exact values (gaps, border width, opacity, animation speeds, monitor resolution/refresh rate) or to change any of the above, edit `hyprland.lua` directly.
 
 ---
 
 ## Waybar
 
-Position at top with 30px height. Includes modular groups for resources, input, connections, and system stats.
+Positioned at the top with a 30px height. Layout and visual styling are driven directly by `configs/waybar/.config/waybar/config` and `style.css`.
 
-**Key configuration:**
+- **Layout & Structure**: includes modular pill-like groups for workspaces, window taskbar, clock, resources, inputs, connections, and system power stats.
+- **Icon Themes**: uses **Papirus-Dark** for the taskbar module (`wlr/taskbar`) and **Font Awesome 6 Pro** glyphs for system status indicators.
+- **Styling**: background and individual module groups use rounded pills (`border-radius: 10px`) in Surface/Background shades, with active elements highlighted in Frost 2 / Frost 3 — see [Color Scheme](#color-scheme).
 
-- Margin: `10 10 0 10`
-- Taskbar icon theme: **Papirus-Dark**
-- Clock format: 24-hour with date
-
-**CSS Styling:**
-
-The `@define-color` block mirrors Background, Text, Frost 2, and Frost 3 from the [Color Scheme](#color-scheme) table above.
-
-```css
-/* Nordic Palette */
-@define-color nord_bg #2E3440;
-@define-color nord_fg #D8DEE9;
-@define-color nord_bg2 #3B4252;
-@define-color nord_hl #88C0D0;
-@define-color nord_hl2 #81A1C1;
-
-window#waybar {
-  color: @nord_hl;
-  background-color: transparent;
-}
-
-#workspaces,
-#taskbar,
-#clock,
-#resources,
-#input,
-#connections,
-#system {
-  background: @nord_bg;
-  border-radius: 10px;
-  padding: 0 10px;
-}
-
-button {
-  color: @nord_bg;
-  background: @nord_hl;
-  opacity: 0.5;
-  border-radius: 10px;
-  padding: 0 5px;
-  margin: 5px;
-}
-
-button.active,
-button:hover {
-  opacity: 1;
-}
-```
+For exact CSS selectors, padding, margins, and palette `@define-color` bindings, inspect `configs/waybar/.config/waybar/style.css` directly.
 
 ---
 
@@ -310,19 +193,16 @@ Window padding: 10px
 
 ## Wallpaper
 
-Managed with `hyprpaper`.
-
-```bash
-# In hyprland.conf autostart:
-exec-once = hyprpaper
-```
+Managed with `hyprpaper`, autostarted at every Hyprland session from `hyprland.lua`.
 
 ---
 
 ## Environment Variables
 
-```ini
-env = XCURSOR_SIZE,24
-env = HYPRCURSOR_SIZE,24
-env = HYPRSHOT_DIR,$HOME/Pictures/Screenshots
-```
+| Variable          | Value                    | Why it matters here                               |
+| ----------------- | ------------------------ | ------------------------------------------------- |
+| `XCURSOR_SIZE`    | `24`                     | Cursor size, paired with the Adwaita cursor theme |
+| `HYPRCURSOR_SIZE` | `24`                     | Same, for the Hyprcursor protocol                 |
+| `HYPRSHOT_DIR`    | `~/Pictures/Screenshots` | Not theming-related, but set here for convenience |
+
+Set in `hyprland.lua` via `hl.env(...)` — see the file for the exact calls if they ever need changing.

@@ -66,7 +66,7 @@ ls -ld ~/.config/<new_package>
 Does this package need a check 3 entry in `status.sh`? See [`docs/scripts.md`](scripts.md#statussh) for what a "critical binary" is and why it matters. Quick criteria to decide:
 
 - Does the package wrap an actual **executable/daemon**, not just passive config, styling, or assets? (`hypr`, `waybar`, `dunst`, `clipse` → yes; `fonts`, `fontconfig`, `gtk`, `face` → no, nothing to check)
-- Is that executable invoked **automatically** by something else (an `exec-once` in `hyprland.conf`, a keybind, an autostart entry, a systemd/user service) — i.e. would you _not_ immediately notice if it silently failed to launch?
+- Is that executable invoked **automatically** by something else (an `hl.exec_cmd(...)` call inside the `hl.on("hyprland.start", ...)` autostart block in `hyprland.lua`, a keybind, a systemd/user service) — i.e. would you _not_ immediately notice if it silently failed to launch?
 - Is it installed through a **fragile path** (manual build, Go/Cargo/pip install, an AUR package with a history of broken builds) rather than a stable official-repo package?
 
 ```bash
@@ -166,8 +166,10 @@ The two management approaches have opposite edit flows — it is important not t
 **Stow packages (`configs/`)** — symlinked to `$HOME`, so editing the file on the system and editing the file in the repo are the same operation. No sync needed.
 
 ```
-Edit ~/.config/hypr/hyprland.conf → already reflected in the repo → git commit
+Edit ~/.config/hypr/hyprland.lua → already reflected in the repo → git commit
 ```
+
+> **Note:** since the Lua migration, `hyprland.lua` is the file Hyprland actually loads. `hyprland.conf` remains in the `hypr` package as an untouched, non-active fallback — edit `hyprland.lua` for anything Hyprland-related, not `hyprland.conf`.
 
 **System files (`system/`)** — copied, not symlinked. Always edit the real file on the system, then pull it into the repo with the sync script. Editing directly in `system/` repo folder has no effect on the running system and will be overwritten on the next sync.
 
