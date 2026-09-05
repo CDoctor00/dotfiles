@@ -5,7 +5,7 @@ This document is the reference for the three maintenance scripts in `scripts/`: 
 All three scripts share the same conventions:
 
 - Colored, timestamped terminal output (`[ OK ]`, `[WARN]`, `[ERR ]`, `[INFO]`)
-- A log file written to `logs/<script>_<timestamp>.log` on every run
+- A log file written to `logs/<script>/<script>_<timestamp>.log` on every run. Logs are auto-rotated on each run via the shared `rotate_logs()` helper in `scripts/lib/common.sh`: entries older than 30 days are pruned, always keeping at least the 10 most recent regardless of age. A log that can't be deleted (e.g. owned by `root` from a `sudo` run) is reported as `[WARN]` rather than aborting the run.
 - `command find`, `command grep`, etc. used internally where relevant, so behavior doesn't change if `find`/`grep` are aliased to other tools (e.g. `fd`, `ripgrep`) in your interactive shell
 - `--help` / `-h` to print usage and exit
 
@@ -13,11 +13,11 @@ All three scripts share the same conventions:
 
 ## Quick reference
 
-| Script       | Purpose                                       | Flags                                                                                                                                                                                                             | Needs sudo                                | Stops on running system?  |
-| ------------ | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- | ------------------------- |
-| `install.sh` | Deploy the repo onto a system                 | `--packages-only` `--symlinks-only` `--root-bashrc-only` `--link-scripts-only` `--fonts-only` `--system-only` `--unstow-only` `--dry-run` (the `*-only` flags are combinable, except `--unstow-only` — see below) | Yes (packages, root bashrc, system files) | No — writes/changes files |
-| `sync.sh`    | Pull the running system's state into the repo | `--packages-only` `--system-only` `--versions-only`                                                                                                                                                               | Yes (system files)                        | No — writes into the repo |
-| `status.sh`  | Read-only health-check, no writes             | none required; optionally pass binary names to override step 3                                                                                                                                                    | No                                        | No — diagnostic only      |
+| Script         | Purpose                                       | Flags                                                                                                                                                                                                             | Needs sudo                                | Stops on running system?  |
+| -------------- | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- | ------------------------- |
+| `install.sh`   | Deploy the repo onto a system                 | `--packages-only` `--symlinks-only` `--root-bashrc-only` `--link-scripts-only` `--fonts-only` `--system-only` `--unstow-only` `--dry-run` (the `*-only` flags are combinable, except `--unstow-only` — see below) | Yes (packages, root bashrc, system files) | No — writes/changes files |
+| `status.status | Pull the running system's state into the repo | `--packages-only` `--system-only` `--versions-only`                                                                                                                                                               | Yes (system files)                        | No — writes into the repo |
+| `status.sh`    | Read-only health-check, no writes             | none required; optionally pass binary names to override step 3                                                                                                                                                    | No                                        | No — diagnostic only      |
 
 Run any script with no flags for its full behavior; each flag narrows it to a single phase.
 
@@ -59,7 +59,7 @@ Deploys the repo onto a system: installs packages, creates Stow symlinks, instal
 
 ### Logging
 
-Every run writes to `logs/install_<timestamp>.log`. In `--dry-run` mode, commands are printed instead of executed and nothing is applied. Check the log after any run that reported warnings or errors.
+Every run writes to `logs/install/install_<timestamp>.log`, with automatic rotation as described above. In `--dry-run` mode, commands are printed instead of executed and nothing is applied. Check the log after any run that reported warnings or errors.
 
 ---
 
@@ -84,7 +84,7 @@ Pulls the running system's state back into the repo: refreshes package lists, co
 
 ### Logging
 
-Every run writes to `logs/sync_<timestamp>.log`.
+Every run writes to `logs/sync/sync_<timestamp>.log`, with automatic rotation as described above.
 
 ---
 
@@ -113,6 +113,6 @@ Read-only health-check. Makes no changes to the system or the repo — safe to r
 
 ### Exit code and logging
 
-Exits `0` if every check passed, `1` if any `[WARN]`/`[ERR ]` was reported — safe to wire into a periodic check or a pre-commit hook. Every run also writes to `logs/status_<timestamp>.log`, same convention as `install.sh`/`sync.sh`.
+Exits `0` if every check passed, `1` if any `[WARN]`/`[ERR ]` was reported — safe to wire into a periodic check or a pre-commit hook. Every run writes to `logs/status/status_<timestamp>.log`, with automatic rotation as described above.
 
 Unlike the other two scripts, `status.sh` does not use `set -e`: it's diagnostic, so a failed check should be reported and the script should keep running the remaining checks rather than abort on the first problem.

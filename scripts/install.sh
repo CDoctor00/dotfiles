@@ -40,7 +40,7 @@ BACKUP_DIR="$HOME/.dotfiles-backup/$(date +%Y%m%d_%H%M%S)"
 PACKAGES_FILE="$DOTFILES_DIR/packages/packages.txt"
 AUR_PACKAGES_FILE="$DOTFILES_DIR/packages/aur-packages.txt"
 SYSTEM_FILES_CONF="$SCRIPTS_DIR/system-files.conf"
-LOG_DIR="$DOTFILES_DIR/logs"
+LOG_DIR="$DOTFILES_DIR/logs/install"
 LOG_FILE="$LOG_DIR/install_$(date +%Y%m%d_%H%M%S).log"
 
 # Stow packages — Automatically detect all Stow packages by reading the folders inside configs/
@@ -93,6 +93,44 @@ init_log() {
   echo "=== install.sh — $(date '+%Y-%m-%d %H:%M:%S') ===" > "$LOG_FILE"
   echo "DRY_RUN=$DRY_RUN" >> "$LOG_FILE"
   echo "" >> "$LOG_FILE"
+}
+
+# ── Log rotation ──────────────────────────────────────────────────────────────
+# Deletes logs older than RETENTION_DAYS, but always keeps at least
+# RETENTION_MIN_KEEP most recent files regardless of age.
+RETENTION_DAYS=30
+RETENTION_MIN_KEEP=10
+
+rotate_logs() {
+  local all_logs old_logs keep_recent to_delete f
+
+  # All logs for this script, newest first.
+  mapfile -t all_logs < <(command find "$LOG_DIR" -maxdepth 1 -name '*.log' -printf '%T@ %p\n' 2>/dev/null \
+    | sort -rn | cut -d' ' -f2-)
+
+  [[ ${#all_logs[@]} -le $RETENTION_MIN_KEEP ]] && return
+
+  # Files older than RETENTION_DAYS, excluding the RETENTION_MIN_KEEP newest.
+  mapfile -t keep_recent < <(printf '%s\n' "${all_logs[@]}" | head -n "$RETENTION_MIN_KEEP")
+  mapfile -t old_logs < <(command find "$LOG_DIR" -maxdepth 1 -name '*.log' -mtime "+$RETENTION_DAYS" 2>/dev/null)
+
+  to_delete=()
+  for f in "${old_logs[@]}"; do
+    if ! printf '%s\n' "${keep_recent[@]}" | command grep -qxF "$f"; then
+      to_delete+=("$f")
+    fi
+  done
+
+  [[ ${#to_delete[@]} -eq 0 ]] && return
+
+  for f in "${to_delete[@]}"; do
+    if command rm -f "$f" 2>/dev/null; then
+      : # deleted silently, reported in aggregate below
+    else
+      warn "Could not delete old log (permission denied?): $f"
+    fi
+  done
+  log "Log rotation: removed ${#to_delete[@]} log(s) older than ${RETENTION_DAYS}d (kept ${RETENTION_MIN_KEEP} most recent)"
 }
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -377,6 +415,7 @@ main() {
   echo ""
 
   init_log
+  rotate_logs
   $DRY_RUN && warn "DRY-RUN mode — no changes will be applied."
 
   check_arch

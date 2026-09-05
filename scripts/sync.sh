@@ -33,7 +33,7 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PACKAGES_DIR="$DOTFILES_DIR/packages"
 SCRIPTS_DIR="$DOTFILES_DIR/scripts"
 SYSTEM_FILES_CONF="$SCRIPTS_DIR/system-files.conf"
-LOG_DIR="$DOTFILES_DIR/logs"
+LOG_DIR="$DOTFILES_DIR/logs/sync"
 LOG_FILE="$LOG_DIR/sync_$(date +%Y%m%d_%H%M%S).log"
 README="$DOTFILES_DIR/README.md"
 
@@ -66,6 +66,44 @@ init_log() {
   mkdir -p "$LOG_DIR"
   echo "=== sync.sh — $(date '+%Y-%m-%d %H:%M:%S') ===" > "$LOG_FILE"
   echo "" >> "$LOG_FILE"
+}
+
+# ── Log rotation ──────────────────────────────────────────────────────────────
+# Deletes logs older than RETENTION_DAYS, but always keeps at least
+# RETENTION_MIN_KEEP most recent files regardless of age.
+RETENTION_DAYS=30
+RETENTION_MIN_KEEP=10
+
+rotate_logs() {
+  local all_logs old_logs keep_recent to_delete f
+
+  # All logs for this script, newest first.
+  mapfile -t all_logs < <(command find "$LOG_DIR" -maxdepth 1 -name '*.log' -printf '%T@ %p\n' 2>/dev/null \
+    | sort -rn | cut -d' ' -f2-)
+
+  [[ ${#all_logs[@]} -le $RETENTION_MIN_KEEP ]] && return
+
+  # Files older than RETENTION_DAYS, excluding the RETENTION_MIN_KEEP newest.
+  mapfile -t keep_recent < <(printf '%s\n' "${all_logs[@]}" | head -n "$RETENTION_MIN_KEEP")
+  mapfile -t old_logs < <(command find "$LOG_DIR" -maxdepth 1 -name '*.log' -mtime "+$RETENTION_DAYS" 2>/dev/null)
+
+  to_delete=()
+  for f in "${old_logs[@]}"; do
+    if ! printf '%s\n' "${keep_recent[@]}" | command grep -qxF "$f"; then
+      to_delete+=("$f")
+    fi
+  done
+
+  [[ ${#to_delete[@]} -eq 0 ]] && return
+
+  for f in "${to_delete[@]}"; do
+    if command rm -f "$f" 2>/dev/null; then
+      : # deleted silently, reported in aggregate below
+    else
+      warn "Could not delete old log (permission denied?): $f"
+    fi
+  done
+  log "Log rotation: removed ${#to_delete[@]} log(s) older than ${RETENTION_DAYS}d (kept ${RETENTION_MIN_KEEP} most recent)"
 }
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -210,6 +248,7 @@ main() {
   echo ""
 
   init_log
+  rotate_logs
 
   # If any *-only flag was passed, run exactly the requested steps instead
   # of the full sync.
