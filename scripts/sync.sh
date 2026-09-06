@@ -19,15 +19,6 @@
 
 set -euo pipefail
 
-# ── Colors ────────────────────────────────────────────────────────────────────
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-BOLD='\033[1m'
-NC='\033[0m'
-
 # ── Paths ─────────────────────────────────────────────────────────────────────
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PACKAGES_DIR="$DOTFILES_DIR/packages"
@@ -36,6 +27,14 @@ SYSTEM_FILES_CONF="$SCRIPTS_DIR/system-files.conf"
 LOG_DIR="$DOTFILES_DIR/logs/sync"
 LOG_FILE="$LOG_DIR/sync_$(date +%Y%m%d_%H%M%S).log"
 README="$DOTFILES_DIR/README.md"
+
+# ── Shared libs ───────────────────────────────────────────────────────────────
+# shellcheck source=scripts/lib/colors.sh
+source "$SCRIPTS_DIR/lib/colors.sh"
+# shellcheck source=scripts/lib/logging.sh
+source "$SCRIPTS_DIR/lib/logging.sh"
+# shellcheck source=scripts/lib/rotation.sh
+source "$SCRIPTS_DIR/lib/rotation.sh"
 
 # AUR packages installed by the bootstrap process — excluded from aur-packages.txt
 AUR_EXCLUDE=(yay yay-bin paru paru-bin)
@@ -60,58 +59,6 @@ for arg in "$@"; do
       echo -e "${YELLOW}Unknown argument: $arg${NC}"; exit 1 ;;
   esac
 done
-
-# ── Logging ───────────────────────────────────────────────────────────────────
-init_log() {
-  mkdir -p "$LOG_DIR"
-  echo "=== sync.sh — $(date '+%Y-%m-%d %H:%M:%S') ===" > "$LOG_FILE"
-  echo "" >> "$LOG_FILE"
-}
-
-# ── Log rotation ──────────────────────────────────────────────────────────────
-# Deletes logs older than RETENTION_DAYS, but always keeps at least
-# RETENTION_MIN_KEEP most recent files regardless of age.
-RETENTION_DAYS=30
-RETENTION_MIN_KEEP=10
-
-rotate_logs() {
-  local all_logs old_logs keep_recent to_delete f
-
-  # All logs for this script, newest first.
-  mapfile -t all_logs < <(command find "$LOG_DIR" -maxdepth 1 -name '*.log' -printf '%T@ %p\n' 2>/dev/null \
-    | sort -rn | cut -d' ' -f2-)
-
-  [[ ${#all_logs[@]} -le $RETENTION_MIN_KEEP ]] && return
-
-  # Files older than RETENTION_DAYS, excluding the RETENTION_MIN_KEEP newest.
-  mapfile -t keep_recent < <(printf '%s\n' "${all_logs[@]}" | head -n "$RETENTION_MIN_KEEP")
-  mapfile -t old_logs < <(command find "$LOG_DIR" -maxdepth 1 -name '*.log' -mtime "+$RETENTION_DAYS" 2>/dev/null)
-
-  to_delete=()
-  for f in "${old_logs[@]}"; do
-    if ! printf '%s\n' "${keep_recent[@]}" | command grep -qxF "$f"; then
-      to_delete+=("$f")
-    fi
-  done
-
-  [[ ${#to_delete[@]} -eq 0 ]] && return
-
-  for f in "${to_delete[@]}"; do
-    if command rm -f "$f" 2>/dev/null; then
-      : # deleted silently, reported in aggregate below
-    else
-      warn "Could not delete old log (permission denied?): $f"
-    fi
-  done
-  log "Log rotation: removed ${#to_delete[@]} log(s) older than ${RETENTION_DAYS}d (kept ${RETENTION_MIN_KEEP} most recent)"
-}
-
-# ── Helpers ───────────────────────────────────────────────────────────────────
-ok()    { local msg="[ OK ]  $*"; echo -e "${GREEN}${msg}${NC}";   echo "$msg" >> "$LOG_FILE"; }
-warn()  { local msg="[WARN]  $*"; echo -e "${YELLOW}${msg}${NC}";  echo "$msg" >> "$LOG_FILE"; }
-error() { local msg="[ERR ]  $*"; echo -e "${RED}${msg}${NC}" >&2; echo "$msg" >> "$LOG_FILE"; }
-log()   { local msg="[INFO]  $*"; echo -e "${BLUE}${msg}${NC}";    echo "$msg" >> "$LOG_FILE"; }
-step()  { local msg="▶ $*";       echo -e "\n${BOLD}${CYAN}${msg}${NC}"; echo -e "\n${msg}" >> "$LOG_FILE"; }
 
 # ── System files ──────────────────────────────────────────────────────────────
 load_system_files() {

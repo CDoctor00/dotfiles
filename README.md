@@ -141,12 +141,19 @@ dotfiles/
 │   └── theming.md
 │
 ├── logs/                           # Runtime logs — not tracked by git
+│   ├── install/                     # install_<timestamp>.log, auto-rotated
+│   ├── sync/                        # sync_<timestamp>.log, auto-rotated
+│   └── status/                      # status_<timestamp>.log, auto-rotated
 │
 ├── packages/
 │   ├── packages.txt                # Official pacman packages
 │   └── aur-packages.txt            # AUR packages
 │
 ├── scripts/
+│   ├── lib/                         # Shared logic sourced by install.sh, sync.sh, status.sh
+│   │   ├── colors.sh                # ANSI color variables
+│   │   ├── logging.sh               # ok()/warn()/error()/log()/step()/init_log()
+│   │   └── rotation.sh              # rotate_logs() + retention constants
 │   ├── system-files.conf           # Shared map: repo path ↔ system path
 │   ├── install.sh                  # Full installer
 │   ├── sync.sh                     # Sync system state back into the repo
@@ -248,7 +255,7 @@ git push
 git add -A && git commit -m "CHORE: sync"
 ```
 
-> After syncing, a log file is saved to `logs/sync_<timestamp>.log`. Check it if any step reported warnings or errors.
+> After syncing, a log file is saved to `logs/sync/sync_<timestamp>.log`. Check it if any step reported warnings or errors.
 
 ### Checking system health
 

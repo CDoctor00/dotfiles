@@ -2,22 +2,38 @@
 
 This document is the reference for the three maintenance scripts in `scripts/`: what each one does, which flags it accepts, and what it touches on the system. For step-by-step procedures (adding a package, adding a system file, resolving conflicts), see [`docs/managing.md`](managing.md).
 
-All three scripts share the same conventions:
+All three scripts share the same conventions, implemented once and sourced from `scripts/lib/` rather than duplicated in each script:
 
-- Colored, timestamped terminal output (`[ OK ]`, `[WARN]`, `[ERR ]`, `[INFO]`)
-- A log file written to `logs/<script>/<script>_<timestamp>.log` on every run. Logs are auto-rotated on each run via the shared `rotate_logs()` helper in `scripts/lib/common.sh`: entries older than 30 days are pruned, always keeping at least the 10 most recent regardless of age. A log that can't be deleted (e.g. owned by `root` from a `sudo` run) is reported as `[WARN]` rather than aborting the run.
+- Colored, timestamped terminal output (`[ OK ]`, `[WARN]`, `[ERR ]`, `[INFO]`) — ANSI color codes live in `scripts/lib/colors.sh`, the `ok()/warn()/error()/log()/step()/init_log()` helpers in `scripts/lib/logging.sh` (sourced in that order, since `logging.sh` uses `colors.sh`'s variables).
+- A log file written to `logs/<script>/<script>_<timestamp>.log` on every run. Logs are auto-rotated on each run via the shared `rotate_logs()` helper in `scripts/lib/rotation.sh` (sourced after `logging.sh`, since it calls `warn()`/`log()`): entries older than 30 days are pruned, always keeping at least the 10 most recent regardless of age. A log that can't be deleted (e.g. owned by `root` from a `sudo` run) is reported as `[WARN]` rather than aborting the run. `install.sh` skips rotation entirely in `--dry-run` mode, consistent with that mode not touching anything else on disk.
 - `command find`, `command grep`, etc. used internally where relevant, so behavior doesn't change if `find`/`grep` are aliased to other tools (e.g. `fd`, `ripgrep`) in your interactive shell
 - `--help` / `-h` to print usage and exit
+
+> **`status.sh`'s logging is not identical to the other two.** `warn()`/`error()` in `scripts/lib/logging.sh` also need to flag `status.sh`'s "did any check fail" state (`ISSUES_FOUND`, used for its exit code — see below), which `install.sh`/`sync.sh` don't need. Rather than duplicating `warn()`/`error()` for that one script, `logging.sh` calls a hook, `_on_issue()`, that's a no-op everywhere except `status.sh`, which redefines it right after sourcing the library to set `ISSUES_FOUND=1`.
+
+---
+
+## Shared library (`scripts/lib/`)
+
+`install.sh`, `sync.sh` and `status.sh` each source three files from `scripts/lib/`, in this order:
+
+1. **`colors.sh`** — the ANSI color variables (`RED`, `GREEN`, `YELLOW`, `BLUE`, `CYAN`, `BOLD`, `NC`). No dependencies.
+2. **`logging.sh`** — `ok()`, `warn()`, `error()`, `log()`, `step()`, `init_log()`. Depends on `colors.sh`'s variables, and on the caller having already set `LOG_DIR`/`LOG_FILE`. `warn()`/`error()` call a hook, `_on_issue()` (see the note above), which is a no-op unless the caller redefines it.
+3. **`rotation.sh`** — `rotate_logs()`, plus the `RETENTION_DAYS`/`RETENTION_MIN_KEEP` constants. Depends on `logging.sh`'s `warn()`/`log()`, and on the caller having already set `LOG_DIR`.
+
+This split — one small file per responsibility, rather than a single shared `common.sh` — mirrors the separation already used elsewhere in the repo (e.g. `docs/managing.md` vs `docs/scripts.md`). None of these three files impose their own `set -e`/`set -o pipefail`: `status.sh` intentionally doesn't use them, so the shared library stays neutral and lets each script decide.
+
+If you're adding a new maintenance script and want the same conventions, source the three files in the order above (after setting `LOG_DIR`/`LOG_FILE`), and only define `_on_issue()` if the script needs to track its own failure state the way `status.sh` does.
 
 ---
 
 ## Quick reference
 
-| Script         | Purpose                                       | Flags                                                                                                                                                                                                             | Needs sudo                                | Stops on running system?  |
-| -------------- | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- | ------------------------- |
-| `install.sh`   | Deploy the repo onto a system                 | `--packages-only` `--symlinks-only` `--root-bashrc-only` `--link-scripts-only` `--fonts-only` `--system-only` `--unstow-only` `--dry-run` (the `*-only` flags are combinable, except `--unstow-only` — see below) | Yes (packages, root bashrc, system files) | No — writes/changes files |
-| `status.status | Pull the running system's state into the repo | `--packages-only` `--system-only` `--versions-only`                                                                                                                                                               | Yes (system files)                        | No — writes into the repo |
-| `status.sh`    | Read-only health-check, no writes             | none required; optionally pass binary names to override step 3                                                                                                                                                    | No                                        | No — diagnostic only      |
+| Script       | Purpose                                       | Flags                                                                                                                                                                                                             | Needs sudo                                | Stops on running system?  |
+| ------------ | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- | ------------------------- |
+| `install.sh` | Deploy the repo onto a system                 | `--packages-only` `--symlinks-only` `--root-bashrc-only` `--link-scripts-only` `--fonts-only` `--system-only` `--unstow-only` `--dry-run` (the `*-only` flags are combinable, except `--unstow-only` — see below) | Yes (packages, root bashrc, system files) | No — writes/changes files |
+| `sync.sh`    | Pull the running system's state into the repo | `--packages-only` `--system-only` `--versions-only`                                                                                                                                                               | Yes (system files)                        | No — writes into the repo |
+| `status.sh`  | Read-only health-check, no writes             | none required; optionally pass binary names to override step 3                                                                                                                                                    | No                                        | No — diagnostic only      |
 
 Run any script with no flags for its full behavior; each flag narrows it to a single phase.
 
@@ -59,7 +75,7 @@ Deploys the repo onto a system: installs packages, creates Stow symlinks, instal
 
 ### Logging
 
-Every run writes to `logs/install/install_<timestamp>.log`, with automatic rotation as described above. In `--dry-run` mode, commands are printed instead of executed and nothing is applied. Check the log after any run that reported warnings or errors.
+Every run writes to `logs/install/install_<timestamp>.log`, with automatic rotation as described above — except in `--dry-run` mode, where rotation is skipped along with everything else, since dry-run is meant to leave the filesystem untouched. In `--dry-run` mode, commands are printed instead of executed and nothing is applied. Check the log after any run that reported warnings or errors.
 
 ---
 
