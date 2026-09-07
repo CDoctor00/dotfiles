@@ -38,11 +38,12 @@ Packages marked `(AUR)` come from the Arch User Repository; everything else is i
 
 ## Terminal & Shell
 
-| Application       | Package | Description                                             |
-| ----------------- | ------- | ------------------------------------------------------- |
-| Terminal          | `kitty` | GPU-accelerated terminal with Nerd Font support         |
-| Shell             | `bash`  | Default shell with custom `.bashrc` and `.bash_profile` |
-| Text Editor (TUI) | `nano`  | Terminal text editors                                   |
+| Application       | Package     | Description                                             |
+| ----------------- | ----------- | ------------------------------------------------------- |
+| Terminal          | `kitty`     | GPU-accelerated terminal with Nerd Font support         |
+| Shell             | `bash`      | Default shell with custom `.bashrc` and `.bash_profile` |
+| Text Editor (TUI) | `nano`      | Terminal text editors                                   |
+| System Info       | `fastfetch` | System info fetch tool with a custom Nord-themed layout |
 
 ---
 

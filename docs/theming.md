@@ -12,6 +12,7 @@ Visual choices and how to replicate them across the entire setup.
 - [Rofi](#rofi)
 - [Dunst (Notifications)](#dunst-notifications)
 - [Kitty (Terminal)](#kitty-terminal)
+- [Fastfetch](#fastfetch)
 - [Wallpaper](#wallpaper)
 - [Environment Variables](#environment-variables)
 
@@ -21,23 +22,24 @@ Visual choices and how to replicate them across the entire setup.
 
 **Current theme:** **Nord**
 
-| Role          | Hex       | Used in                                        |
-| ------------- | --------- | ---------------------------------------------- |
-| Background    | `#2E3440` | Hyprland, Waybar, Rofi, Dunst, Kitty           |
-| Surface       | `#3B4252` | Windows, popups, Waybar groups                 |
-| Overlay       | `#4C566A` | Borders, separators, Rofi inputbar             |
-| Text          | `#D8DEE9` | Primary text (Waybar, Rofi, Dunst)             |
-| Text Alt      | `#ECEFF4` | Alternative text                               |
-| Subtext       | `#E5E9F0` | Secondary text                                 |
-| Frost 1       | `#8FBCBB` | Calendar weeks (Waybar)                        |
-| Frost 2       | `#88C0D0` | Focus border, Dunst frame, highlights          |
-| Frost 3       | `#81A1C1` | Secondary accents, calendar days               |
-| Frost 4       | `#5E81AC` | Tertiary accents                               |
-| Aurora Red    | `#BF616A` | Errors, critical notifications, calendar today |
-| Aurora Orange | `#D08770` | Warning states                                 |
-| Aurora Yellow | `#EBCB8B` | Info, calendar weekdays                        |
-| Aurora Green  | `#A3BE8C` | Success states, calendar weeks                 |
-| Aurora Purple | `#B48EAD` | Alternate accent                               |
+| Nord          | Role        | Hex       | Used in                               |
+| ------------- | ----------- | --------- | ------------------------------------- |
+| Polar Night 1 | Background  | `#2E3440` | Hyprland, Waybar, Rofi, Dunst, Kitty  |
+| Polar Night 2 | Surface     | `#3B4252` | Windows, popups, Waybar groups        |
+| Polar Night 3 | Overlay Alt | `#434C5E` | —                                     |
+| Polar Night 4 | Overlay     | `#4C566A` | Borders, separators, Rofi inputbar    |
+| Snow Storm 1  | Text        | `#D8DEE9` | Primary text                          |
+| Snow Storm 2  | Subtext     | `#E5E9F0` | Secondary text                        |
+| Snow Storm 3  | Text Alt    | `#ECEFF4` | Alternative text                      |
+| Frost 1       | Frost 1     | `#8FBCBB` | Calendar weeks                        |
+| Frost 2       | Frost 2     | `#88C0D0` | Focus border, highlights              |
+| Frost 3       | Frost 3     | `#81A1C1` | Secondary accents                     |
+| Frost 4       | Frost 4     | `#5E81AC` | Tertiary accents                      |
+| Aurora Purple | Accent Alt  | `#B48EAD` | Alternate accent                      |
+| Aurora Red    | Error       | `#BF616A` | Errors, critical notifications, today |
+| Aurora Orange | Warning     | `#D08770` | Warning states                        |
+| Aurora Yellow | Info        | `#EBCB8B` | Info, calendar weekdays               |
+| Aurora Green  | Success     | `#A3BE8C` | Success states                        |
 
 > This table is the single source of truth for colors. Sections below reference colors by name (e.g. "Frost 2") — look up the hex value here rather than re-deriving it, so a future palette change only needs updating in one place.
 
@@ -188,6 +190,19 @@ Window padding: 10px
 | Magenta | `#B48EAD` | `#B48EAD` |
 | Cyan    | `#88C0D0` | `#8FBCBB` |
 | White   | `#E5E9F0` | `#ECEFF4` |
+
+---
+
+## Fastfetch
+
+Custom logo and layout, replacing the default distro-detected ASCII art and output.
+
+- **Logo**: a custom Nord-themed astronaut illustration, shown via the `kitty-icat` image protocol instead of a distro ASCII logo. The image lives at `assets/images/astronaut_1.png` and is loaded by absolute path — see the note in the [README](../README.md#managed-configurations) on why this asset isn't stowed like the rest of the config.
+- **Layout**: output is grouped into three sections — Hardware, Software, and Environment — each with a tree-style row layout (`│ ├` / `│ └`) instead of the default flat list.
+- **Color scheme**: each section uses a single fixed color from the Frost family in the [Color Scheme](#color-scheme) table — Frost 2 for Hardware, Frost 3 for Software, Frost 4 for Environment — applied to the icon, label, and connector together, not per-value or threshold-based like some fastfetch presets.
+- **Icons**: Nerd Font glyphs prefix every row label.
+
+For the exact module list, icons, and box widths, see `configs/fastfetch/.config/fastfetch/config.jsonc` directly.
 
 ---
 

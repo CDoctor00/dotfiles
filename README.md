@@ -36,6 +36,7 @@ This repository contains all the configuration files for a fully customized Arch
 | File manager      | Thunar                      |
 | Text editor       | VSCode (synced via account) |
 | Browser           | Firefox                     |
+| System info       | Fastfetch                   |
 
 ---
 
@@ -115,6 +116,7 @@ chmod +x scripts/install.sh scripts/sync.sh scripts/status.sh
 dotfiles/
 │
 ├── assets/
+│   ├── images/                     # Custom logos/graphics referenced by absolute path
 │   ├── screenshots/
 │   └── wallpapers/
 │
@@ -123,6 +125,7 @@ dotfiles/
 │   ├── clipse/                     # → $HOME/.config/clipse/
 │   ├── dunst/                      # → $HOME/.config/dunst/
 │   ├── face/                       # → $HOME/.face
+│   ├── fastfetch/                  # → $HOME/.config/fastfetch/
 │   ├── fontconfig/                 # → $HOME/.config/fontconfig/
 │   ├── fonts/                      # → $HOME/.local/share/fonts/
 │   ├── gtk/                        # → $HOME/.config/gtk-3.0/, gtk-4.0/
@@ -190,6 +193,7 @@ Configurations are managed in two different ways depending on where they live on
 | clipse     | `configs/clipse/.config/clipse/`           | `~/.config/clipse/`              |
 | dunst      | `configs/dunst/.config/dunst/`             | `~/.config/dunst/`               |
 | face       | `configs/face/.face`                       | `~/.face`                        |
+| fastfetch  | `configs/fastfetch/.config/fastfetch/`     | `~/.config/fastfetch/`           |
 | fontconfig | `configs/fontconfig/.config/fontconfig/`   | `~/.config/fontconfig/`          |
 | fonts      | `configs/fonts/.local/share/fonts/`        | `~/.local/share/fonts/`          |
 | gtk        | `configs/gtk/.config/gtk-3.0/`, `gtk-4.0/` | `~/.config/gtk-3.0/`, `gtk-4.0/` |
