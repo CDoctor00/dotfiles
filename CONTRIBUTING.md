@@ -46,22 +46,28 @@ Each commit message consists of a **header** (mandatory), and an optional **body
 
 #### Scope
 
-Scope is **optional**. Use it when a commit is localized to one area of the repo; omit it when the change is cross-cutting (e.g. touches multiple Stow packages, or the repo's structure as a whole).
+Scope is **optional**. It names the package or feature the commit is about — not simply the directory it happens to touch. Omit it when the change is cross-cutting (several unrelated packages, or the repo's structure as a whole).
 
 There's no fixed, enumerated list of scopes to memorize. The rule is simple:
 
-> **The scope is the name of the directory the commit touches.**
+> **The scope is the package or feature the commit changes.**
 
-For a Stow package, that's the package name under `configs/` — same name `managing.md` uses when you add a new package, so it stays in sync automatically without a separate list to update.
+| Commit changes…                   | Scope                                                                                           |
+| --------------------------------- | ----------------------------------------------------------------------------------------------- |
+| A Stow package (`configs/<pkg>/`) | `<pkg>` — same name `managing.md` uses (`hypr`, `waybar`, `kitty`, `rofi`, `clipse`, ...)       |
+| The scripts (`scripts/`)          | `scripts`, or the specific script/feature when the commit is only about that (`sync`, `status`) |
+| Package lists (`packages/`)       | `packages`                                                                                      |
+| System files (`system/`)          | `system`                                                                                        |
+| Documentation only                | the topic (`theming`, `keybindings`, ...); omit if it spans several topics                      |
+| Root-level / spans multiple areas | _(omit scope)_                                                                                  |
 
-| Area touched                      | Scope                                                                    |
-| --------------------------------- | ------------------------------------------------------------------------ |
-| `configs/<pkg>/`                  | `<pkg>` (e.g. `hypr`, `waybar`, `dunst`, `kitty`, `rofi`, `clipse`, ...) |
-| `scripts/` (any of the 3 scripts) | `scripts`                                                                |
-| `docs/`                           | `docs`                                                                   |
-| `packages/`                       | `packages`                                                               |
-| `system/` (any subfolder)         | `system`                                                                 |
-| Root-level / spans multiple areas | _(omit scope)_                                                           |
+**A commit that changes a feature and its documentation is a single commit**, scoped to the feature — don't split code and docs when the docs describe that very change:
+
+```
+FEAT(hypr): migrate configuration to Lua and update documentation
+```
+
+A documentation-only commit uses the topic as scope, e.g. `DOCS(theming): describe the Frost gradient`.
 
 #### Summary
 

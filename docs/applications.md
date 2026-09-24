@@ -23,16 +23,16 @@ Packages marked `(AUR)` come from the Arch User Repository; everything else is i
 | Application         | Package           | Description                                          |
 | ------------------- | ----------------- | ---------------------------------------------------- |
 | Window Manager      | `hyprland`        | Wayland compositor with tiling and floating support  |
-| Status Bar          | `waybar`          | Modular status bar for Wayland                       |
-| App Launcher        | `rofi-wayland`    | Application launcher (using adi1090x type-2 style-1) |
-| Power Menu          | `rofi-wayland`    | Power menu (using adi1090x type-2 style-7)           |
-| Notification Daemon | `dunst`           | Lightweight notification manager                     |
 | Wallpaper           | `hyprpaper`       | Wallpaper manager for Hyprland                       |
 | Lock Screen         | `hyprlock`        | Screen locker for Hyprland                           |
 | Night Light         | `hyprsunset`      | Blue light filter (similar to redshift)              |
 | Authentication      | `hyprpolkitagent` | Polkit authentication agent for Hyprland             |
+| App Launcher        | `rofi`            | Application launcher (using adi1090x type-2 style-1) |
+| Power Menu          | `rofi`            | Power menu (using adi1090x type-2 style-7)           |
+| Logout Menu         | `rofi`            | Logout/power menu                                    |
+| Status Bar          | `waybar`          | Modular status bar for Wayland                       |
+| Notification Daemon | `dunst`           | Lightweight notification manager                     |
 | Display Manager     | `sddm`            | Login manager with silent theme                      |
-| Logout Menu         | `rofi-wayland`    | Logout/power menu                                    |
 
 ---
 

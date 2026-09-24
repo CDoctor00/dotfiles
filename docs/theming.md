@@ -103,7 +103,7 @@ For exact values (gaps, border width, opacity, animation speeds, monitor resolut
 
 ## Waybar
 
-Positioned at the top with a 30px height. Layout and visual styling are driven directly by `configs/waybar/.config/waybar/config` and `style.css`.
+Positioned at the top with a 30px height. Layout and visual styling are driven directly by `configs/waybar/.config/waybar/config.jsonc` and `style.css`.
 
 - **Layout & Structure**: includes modular pill-like groups for workspaces, window taskbar, clock, resources, inputs, connections, and system power stats.
 - **Icon Themes**: uses **Papirus-Dark** for the taskbar module (`wlr/taskbar`) and **Font Awesome 6 Pro** glyphs for system status indicators.

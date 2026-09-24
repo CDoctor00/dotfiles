@@ -169,7 +169,7 @@ The two management approaches have opposite edit flows — it is important not t
 Edit ~/.config/hypr/hyprland.lua → already reflected in the repo → git commit
 ```
 
-> **Note:** since the Lua migration, `hyprland.lua` is the file Hyprland actually loads. `hyprland.conf` remains in the `hypr` package as an untouched, non-active fallback — edit `hyprland.lua` for anything Hyprland-related, not `hyprland.conf`.
+> **Note:** since the Lua migration, `hyprland.lua` is the file Hyprland actually loads.
 
 **System files (`system/`)** — copied, not symlinked. Always edit the real file on the system, then pull it into the repo with the sync script. Editing directly in `system/` repo folder has no effect on the running system and will be overwritten on the next sync.
 

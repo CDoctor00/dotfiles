@@ -145,7 +145,7 @@ hyprctl monitors    # find your monitor name, e.g. "DP-1" or "eDP-1"
 
 Edit `~/.config/hypr/hyprland.lua`, update the `output` field in the `hl.monitor({...})` call with the name found above (e.g. `output = "DP-1"`), then reload with `hyprctl reload` or restart Hyprland.
 
-> **Note:** as of the Lua migration, `hyprland.lua` is the active file — `hyprland.conf` still exists in the `hypr` package but is an untouched, non-loaded fallback. Don't edit `hyprland.conf` expecting it to take effect.
+> **Note:** since the Lua migration, `hyprland.lua` is the file Hyprland actually loads.
 
 ### Waybar not starting
 

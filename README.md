@@ -1,6 +1,6 @@
 # dotfiles — Arch + Hyprland
 
-Personal configuration for Arch Linux with Hyprland as Wayland compositor based on the Nordic palette.
+Personal configuration for Arch Linux with Hyprland as compositor based on the Nordic palette.
 
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1793D1?style=flat&logo=arch-linux&logoColor=white)
 ![Hyprland](https://img.shields.io/badge/Hyprland-58E1FF?style=flat&logoColor=black)
@@ -25,8 +25,8 @@ This repository contains all the configuration files for a fully customized Arch
 
 | Role              | Application                 |
 | ----------------- | --------------------------- |
-| App launcher      | rofi-wayland                |
-| Power menu        | rofi-wayland                |
+| App launcher      | rofi                        |
+| Power menu        | rofi                        |
 | Status bar        | Waybar                      |
 | Notifications     | Dunst                       |
 | Clipboard manager | Clipse                      |
@@ -42,11 +42,11 @@ This repository contains all the configuration files for a fully customized Arch
 
 ## Versions
 
-Key component versions this configuration is tested against. Hyprland configuration uses the **Lua syntax** (`hyprland.lua`), following the migration from the legacy declarative `.conf` format. The old `hyprland.conf` is kept in the `hypr` package as an untouched, non-active fallback.
+Key component versions this configuration is tested against. Hyprland configuration uses the **Lua syntax** (`hyprland.lua`), following the migration from the legacy declarative `.conf` format.
 
 | Component | Version |
 | --------- | ------- |
-| Kernel    | 7.2.3   |
+| Kernel    | 7.2.6   |
 | Hyprland  | 0.56.2  |
 | Hyprlock  | 0.9.6   |
 | Waybar    | 0.15.0  |
@@ -116,7 +116,7 @@ chmod +x scripts/install.sh scripts/sync.sh scripts/status.sh
 dotfiles/
 │
 ├── assets/
-│   ├── images/                     # Custom logos/graphics referenced by absolute path
+│   ├── images/                     # Custom logos/graphics (referenced via ~/.dotfiles/...)
 │   ├── screenshots/
 │   └── wallpapers/
 │
@@ -203,7 +203,7 @@ Configurations are managed in two different ways depending on where they live on
 | spicetify  | `configs/spicetify/.config/spicetify/`     | `~/.config/spicetify/`           |
 | waybar     | `configs/waybar/.config/waybar/`           | `~/.config/waybar/`              |
 
-> **Note on bash**: The root user's bashrc is copied to `/root/.bashrc` via `install.sh` since it cannot use symlinks. When updating the configuration, run `./install.sh --symlinks-only --root-bashrc-only` to sync changes to both the user and root bashrc files.
+> **Note on bash**: The root user's bashrc is copied to `/root/.bashrc` via `install.sh` since it cannot use symlinks. When updating the configuration, run `./scripts/install.sh --symlinks-only --root-bashrc-only` to sync changes to both the user and root bashrc files.
 
 #### System files
 
@@ -267,4 +267,4 @@ git add -A && git commit -m "CHORE: sync"
 ./scripts/status.sh
 ```
 
-Read-only diagnostic — checks Stow symlinks, system file alignment, critical binaries, and stale paths from past migrations. See [`docs/scripts.md`](docs/scripts.md) for details on all three scripts.
+Diagnostic only — it doesn't modify the repo or the system (it only writes its own log to `logs/status/`). It checks Stow symlinks, system file alignment, critical binaries, and stale paths from past migrations, and exits with code 1 if any warning or error is reported. See [`docs/scripts.md`](docs/scripts.md) for details on all three scripts.

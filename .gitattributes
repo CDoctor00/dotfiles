@@ -13,7 +13,7 @@
 
 # ── Hyprland configs ──────────────────────────────────────────────────────────
 # Hyprland uses an INI-like syntax, not Shell.
-configs/hypr/.config/hypr/hyprland.conf  linguist-language=INI linguist-detectable=true
+configs/hypr/.config/hypr/hyprland.lua   linguist-language=INI linguist-detectable=true
 configs/hypr/.config/hypr/hyprpaper.conf linguist-language=INI linguist-detectable=true
 configs/hypr/.config/hypr/hyprlock.conf  linguist-language=INI linguist-detectable=true
 configs/hypr/.config/hypr/hypridle.conf  linguist-language=INI linguist-detectable=true

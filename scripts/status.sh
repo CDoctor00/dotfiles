@@ -37,9 +37,9 @@ source "$SCRIPTS_DIR/lib/rotation.sh"
 
 ISSUES_FOUND=0
 
-# status.sh's exit code communicates whether any check failed, so warn()/
-# error() (defined in logging.sh) need to also flag ISSUES_FOUND=1. This
-# overrides the no-op _on_issue() from logging.sh — a plain function
+# status.sh's exit code is 1 if ANY warn() or error() was emitted (not only
+# errors), so both (defined in logging.sh) need to also flag ISSUES_FOUND=1.
+# This overrides the no-op _on_issue() from logging.sh — a plain function
 # redefinition, resolved at call time, so warn()/error() pick it up without
 # needing their own copy.
 _on_issue() { ISSUES_FOUND=1; }

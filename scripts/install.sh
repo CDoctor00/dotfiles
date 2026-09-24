@@ -196,7 +196,7 @@ install_packages() {
 # ── Stow ──────────────────────────────────────────────────────────────────────
 backup_if_real() {
   local target="$1"
-  local rel_path="$2"  # e.g. hypr/.config/hypr/hyprland.conf
+  local rel_path="$2"  # e.g. hypr/.config/hypr/hyprland.lua
 
   # If the target doesn't exist, there's nothing to back up
   [[ -e "$target" ]] || return 0
