@@ -1,43 +1,40 @@
 # =============================================================================
-#  scripts/lib/logging.sh — Shared logging helpers
+#  scripts/lib/rotation.sh — Shared log rotation
 #
-#  Sourced by install.sh, sync.sh and status.sh, after scripts/lib/colors.sh
-#  (these functions use the color variables it defines) and before
-#  scripts/lib/rotation.sh (which calls warn()/log()).
-#
-#  Requires the following to already be defined by the caller before
-#  sourcing:
-#    - LOG_DIR    directory this script's log file lives in
-#    - LOG_FILE   full path to this script's own log file
-#
-#  Hook:
-#    status.sh needs warn()/error() to also flag that an issue was found
-#    (it sets ISSUES_FOUND=1, used for its exit code), while install.sh and
-#    sync.sh do not need this. Rather than duplicating warn()/error(), they
-#    call _on_issue(), a no-op by default. status.sh redefines _on_issue()
-#    right after sourcing this file to set ISSUES_FOUND=1 — a plain function
-#    redefinition, since bash functions are resolved at call time.
+#  Shared by: install.sh, sync.sh, status.sh
+#  Purpose:   Rotate old logs while respecting retention limits.
 # =============================================================================
 
-_on_issue() { :; }
+#  Intentionally does NOT set its own `set -e`/`set -o pipefail`:
+#  the calling script controls that.
 
-ok()    { local msg="[ OK ]  $*"; echo -e "${GREEN}${msg}${NC}";   echo "$msg" >> "$LOG_FILE"; }
-warn()  { local msg="[WARN]  $*"; echo -e "${YELLOW}${msg}${NC}";  echo "$msg" >> "$LOG_FILE"; _on_issue; }
-error() { local msg="[ERR ]  $*"; echo -e "${RED}${msg}${NC}" >&2; echo "$msg" >> "$LOG_FILE"; _on_issue; }
-log()   { local msg="[INFO]  $*"; echo -e "${BLUE}${msg}${NC}";    echo "$msg" >> "$LOG_FILE"; }
-step()  { local msg="▶ $*";       echo -e "\n${BOLD}${CYAN}${msg}${NC}"; echo -e "\n${msg}" >> "$LOG_FILE"; }
+RETENTION_DAYS=30
+RETENTION_MIN_KEEP=10
 
-# init_log [extra_line ...]
-# Writes the standard log header (script name + timestamp), then any extra
-# lines the caller wants recorded right after it (e.g. install.sh's
-# DRY_RUN=... flag), then a blank line separator — same layout each script
-# produced before this was shared.
-init_log() {
-  mkdir -p "$LOG_DIR"
-  echo "=== $(basename "$0") — $(date '+%Y-%m-%d %H:%M:%S') ===" > "$LOG_FILE"
-  local extra
-  for extra in "$@"; do
-    echo "$extra" >> "$LOG_FILE"
+# Deletes logs older than RETENTION_DAYS in $LOG_DIR, but always keeps at
+# least RETENTION_MIN_KEEP most recent files regardless of age.
+# Requires the caller to have already defined: LOG_DIR, warn(), log()
+rotate_logs() {
+  local all_logs=() old_logs=() keep_recent=() to_delete=() f
+
+  mapfile -t all_logs < <(command find "$LOG_DIR" -maxdepth 1 -name '*.log' -printf '%T@ %p\n' 2>/dev/null \
+    | sort -rn | cut -d' ' -f2-)
+
+  [[ ${#all_logs[@]} -le $RETENTION_MIN_KEEP ]] && return 0
+
+  mapfile -t keep_recent < <(printf '%s\n' "${all_logs[@]}" | head -n "$RETENTION_MIN_KEEP")
+  mapfile -t old_logs < <(command find "$LOG_DIR" -maxdepth 1 -name '*.log' -mtime "+$RETENTION_DAYS" 2>/dev/null)
+
+  for f in "${old_logs[@]}"; do
+    if ! printf '%s\n' "${keep_recent[@]}" | command grep -qxF "$f"; then
+      to_delete+=("$f")
+    fi
   done
-  echo "" >> "$LOG_FILE"
+
+  [[ ${#to_delete[@]} -eq 0 ]] && return 0
+
+  for f in "${to_delete[@]}"; do
+    command rm -f "$f" 2>/dev/null || warn "Could not delete old log (permission denied?): $f"
+  done
+  log "Log rotation: removed ${#to_delete[@]} log(s) older than ${RETENTION_DAYS}d (kept ${RETENTION_MIN_KEEP} most recent)"
 }

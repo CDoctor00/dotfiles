@@ -1,8 +1,8 @@
 # =============================================================================
-#  scripts/lib/colors.sh — Shared ANSI color codes
+#  scripts/lib/colors.sh — ANSI color definitions
 #
-#  Sourced by install.sh, sync.sh and status.sh. Must be sourced before
-#  scripts/lib/logging.sh, which uses these variables.
+#  Shared by: install.sh, sync.sh, status.sh
+#  Purpose:   Provide color constants for terminal output.
 # =============================================================================
 
 RED='\033[0;31m'

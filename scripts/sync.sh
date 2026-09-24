@@ -91,7 +91,7 @@ sync_packages() {
   fi
 
   log "Generating packages/aur-packages.txt..."
-  local exclude_pattern pacman_rc raw
+  local exclude_pattern pacman_rc raw grep_rc
   exclude_pattern=$(printf '^%s$\n' "${AUR_EXCLUDE[@]}" | paste -sd'|')
   raw="$(mktemp)"
 
@@ -108,10 +108,34 @@ sync_packages() {
     warn "Failed to generate aur-packages.txt (pacman -Qqem failed) — existing file left untouched"
   else
     tmp="$(mktemp)"
-    command grep -Ev "$exclude_pattern" "$raw" > "$tmp" || true
+
+    # grep -v returns:
+    #   0 = at least one package remains after filtering
+    #   1 = everything was excluded (valid empty result)
+    #   >1 = actual grep error
+    if command grep -Ev "$exclude_pattern" "$raw" > "$tmp"; then
+      grep_rc=0
+    else
+      grep_rc=$?
+    fi
+
     command rm -f "$raw"
-    command mv -f "$tmp" "$PACKAGES_DIR/aur-packages.txt"
-    ok "aur-packages.txt updated ($(wc -l < "$PACKAGES_DIR/aur-packages.txt") packages)"
+
+    case "$grep_rc" in
+      0)
+        command mv -f "$tmp" "$PACKAGES_DIR/aur-packages.txt"
+        ok "aur-packages.txt updated ($(wc -l < "$PACKAGES_DIR/aur-packages.txt") packages)"
+        ;;
+      1)
+        # No package survived the exclusion filter. This is a valid result.
+        command mv -f "$tmp" "$PACKAGES_DIR/aur-packages.txt"
+        ok "aur-packages.txt updated (0 packages)"
+        ;;
+      *)
+        command rm -f "$tmp"
+        warn "Failed to filter aur-packages.txt (grep exited with $grep_rc) — existing file left untouched"
+        ;;
+    esac
   fi
 }
 
@@ -146,25 +170,114 @@ update_versions() {
     return
   fi
 
-  local hyprland hyprlock waybar kitty rofi dunst kernel
+  local hyprland="" hyprlock="" waybar="" kitty="" rofi="" dunst="" kernel=""
 
-  hyprland=$(hyprctl version 2>/dev/null | command grep -oP 'Hyprland \K[0-9.]+' | head -1)
-  hyprlock=$(hyprlock --version 2>&1 | command grep -oP 'v\K[0-9.]+' | head -1)
-  waybar=$(waybar --version 2>&1 | command grep -oP 'v\K[0-9.]+' | head -1)
-  kitty=$(kitty --version 2>/dev/null | command grep -oP '[0-9.]+' | head -1)
-  rofi=$(rofi -version 2>/dev/null | command grep -oP 'Version: \K[0-9.]+' | head -1)
-  dunst=$(dunst --version 2>/dev/null | command grep -oP '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
-  kernel=$(uname -r | command grep -oP '^[0-9]+\.[0-9]+\.[0-9]+')
+  # Each detector is intentionally isolated from set -e: a missing command,
+  # unexpected output, or a failed pipeline must only cause that component
+  # to be skipped, not abort the whole sync.
+  if command -v hyprctl >/dev/null 2>&1; then
+    hyprland="$(
+      hyprctl version 2>/dev/null |
+        command grep -oP 'Hyprland \K[0-9.]+' |
+        command head -1
+    )" || hyprland=""
+  fi
+
+  if command -v hyprlock >/dev/null 2>&1; then
+    hyprlock="$(
+      hyprlock --version 2>&1 |
+        command grep -oP 'v\K[0-9.]+' |
+        command head -1
+    )" || hyprlock=""
+  fi
+
+  if command -v waybar >/dev/null 2>&1; then
+    waybar="$(
+      waybar --version 2>&1 |
+        command grep -oP 'v\K[0-9.]+' |
+        command head -1
+    )" || waybar=""
+  fi
+
+  if command -v kitty >/dev/null 2>&1; then
+    kitty="$(
+      kitty --version 2>/dev/null |
+        command grep -oP '[0-9.]+' |
+        command head -1
+    )" || kitty=""
+  fi
+
+  if command -v rofi >/dev/null 2>&1; then
+    rofi="$(
+      rofi -version 2>/dev/null |
+        command grep -oP 'Version: \K[0-9.]+' |
+        command head -1
+    )" || rofi=""
+  fi
+
+  if command -v dunst >/dev/null 2>&1; then
+    dunst="$(
+      dunst --version 2>/dev/null |
+        command grep -oP '[0-9]+\.[0-9]+\.[0-9]+' |
+        command head -1
+    )" || dunst=""
+  fi
+
+  kernel="$(
+    uname -r |
+      command grep -oP '^[0-9]+\.[0-9]+\.[0-9]+'
+  )" || kernel=""
 
   log "Detected versions — Kernel: ${kernel:-n/a}, Hyprland: ${hyprland:-n/a}, Hyprlock: ${hyprlock:-n/a}, Waybar: ${waybar:-n/a}, Kitty: ${kitty:-n/a}, Rofi: ${rofi:-n/a}, Dunst: ${dunst:-n/a}"
 
-  [[ -n "$kernel"   ]] && sed -i "s/^| Kernel    |.*$/| Kernel    | $(printf '%-7s' "$kernel") |/"   "$README" && ok "Kernel → $kernel"     || warn "Kernel version not detected, skipping"
-  [[ -n "$hyprland" ]] && sed -i "s/^| Hyprland  |.*$/| Hyprland  | $(printf '%-7s' "$hyprland") |/" "$README" && ok "Hyprland → $hyprland" || warn "Hyprland version not detected, skipping"
-  [[ -n "$hyprlock" ]] && sed -i "s/^| Hyprlock  |.*$/| Hyprlock  | $(printf '%-7s' "$hyprlock") |/" "$README" && ok "Hyprlock → $hyprlock" || warn "Hyprlock version not detected, skipping"
-  [[ -n "$waybar"   ]] && sed -i "s/^| Waybar    |.*$/| Waybar    | $(printf '%-7s' "$waybar") |/"   "$README" && ok "Waybar → $waybar"     || warn "Waybar version not detected, skipping"
-  [[ -n "$kitty"    ]] && sed -i "s/^| Kitty     |.*$/| Kitty     | $(printf '%-7s' "$kitty") |/"    "$README" && ok "Kitty → $kitty"       || warn "Kitty version not detected, skipping"
-  [[ -n "$rofi"     ]] && sed -i "s/^| Rofi      |.*$/| Rofi      | $(printf '%-7s' "$rofi") |/"     "$README" && ok "Rofi → $rofi"         || warn "Rofi version not detected, skipping"
-  [[ -n "$dunst"    ]] && sed -i "s/^| Dunst     |.*$/| Dunst     | $(printf '%-7s' "$dunst") |/"    "$README" && ok "Dunst → $dunst"       || warn "Dunst version not detected, skipping"
+  if [[ -n "$kernel" ]]; then
+    sed -i "s/^| Kernel    |.*$/| Kernel    | $(printf '%-7s' "$kernel") |/" "$README"
+    ok "Kernel → $kernel"
+  else
+    warn "Kernel version not detected, skipping"
+  fi
+
+  if [[ -n "$hyprland" ]]; then
+    sed -i "s/^| Hyprland  |.*$/| Hyprland  | $(printf '%-7s' "$hyprland") |/" "$README"
+    ok "Hyprland → $hyprland"
+  else
+    warn "Hyprland version not detected, skipping"
+  fi
+
+  if [[ -n "$hyprlock" ]]; then
+    sed -i "s/^| Hyprlock  |.*$/| Hyprlock  | $(printf '%-7s' "$hyprlock") |/" "$README"
+    ok "Hyprlock → $hyprlock"
+  else
+    warn "Hyprlock version not detected, skipping"
+  fi
+
+  if [[ -n "$waybar" ]]; then
+    sed -i "s/^| Waybar    |.*$/| Waybar    | $(printf '%-7s' "$waybar") |/" "$README"
+    ok "Waybar → $waybar"
+  else
+    warn "Waybar version not detected, skipping"
+  fi
+
+  if [[ -n "$kitty" ]]; then
+    sed -i "s/^| Kitty     |.*$/| Kitty     | $(printf '%-7s' "$kitty") |/" "$README"
+    ok "Kitty → $kitty"
+  else
+    warn "Kitty version not detected, skipping"
+  fi
+
+  if [[ -n "$rofi" ]]; then
+    sed -i "s/^| Rofi      |.*$/| Rofi      | $(printf '%-7s' "$rofi") |/" "$README"
+    ok "Rofi → $rofi"
+  else
+    warn "Rofi version not detected, skipping"
+  fi
+
+  if [[ -n "$dunst" ]]; then
+    sed -i "s/^| Dunst     |.*$/| Dunst     | $(printf '%-7s' "$dunst") |/" "$README"
+    ok "Dunst → $dunst"
+  else
+    warn "Dunst version not detected, skipping"
+  fi
 }
 
 # ── Summary ───────────────────────────────────────────────────────────────────

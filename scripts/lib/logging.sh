@@ -1,10 +1,10 @@
 # =============================================================================
-#  scripts/lib/logging.sh — Shared logging helpers
+#  scripts/lib/logging.sh — Logging and terminal output helpers
 #
-#  Sourced by install.sh, sync.sh and status.sh, after scripts/lib/colors.sh
-#  (these functions use the color variables it defines) and before
-#  scripts/lib/rotation.sh (which calls warn()/log()).
-#
+#  Shared by: install.sh, sync.sh, status.sh
+#  Purpose:   Provide consistent logging, status messages, and issue hooks.
+# =============================================================================
+
 #  Requires the following to already be defined by the caller before
 #  sourcing:
 #    - LOG_DIR    directory this script's log file lives in
@@ -17,7 +17,6 @@
 #    call _on_issue(), a no-op by default. status.sh redefines _on_issue()
 #    right after sourcing this file to set ISSUES_FOUND=1 — a plain function
 #    redefinition, since bash functions are resolved at call time.
-# =============================================================================
 
 _on_issue() { :; }
 

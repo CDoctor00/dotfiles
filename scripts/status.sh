@@ -93,12 +93,11 @@ check_stow_symlinks() {
   local checked_count=0
   local legacy_count=0
 
-  # Find all symlinks under $HOME (up to a reasonable depth), skip known
-  # noisy locations (app lock files, etc.), and only act on links whose
-  # target resolves inside CONFIGS_DIR (i.e. actual Stow-managed links)
-  # or whose unresolved target string still mentions the repo (i.e.
-  # broken links that used to point into the repo, e.g. leftovers in
-  # .bak directories after a repo path migration).
+  # Find all symlinks under $HOME, skip known noisy locations (app lock files,
+  # etc.), and only act on links whose target resolves inside CONFIGS_DIR
+  # (i.e. actual Stow-managed links) or whose unresolved target string still
+  # mentions the repo (i.e. broken links that used to point into the repo,
+  # e.g. leftovers in .bak directories after a repo path migration).
   while IFS= read -r -d '' link; do
     _is_ignored_path "$link" && continue
 
@@ -124,7 +123,7 @@ check_stow_symlinks() {
         broken_count=$((broken_count + 1))
       fi
     fi
-  done < <(command find "$HOME" -maxdepth 6 -type l -print0 2>/dev/null)
+  done < <(command find "$HOME" -type l -print0 2>/dev/null)
 
   # Additional check: each package under configs/ should have at least
   # one active symlink in $HOME (detects packages that were never
@@ -144,7 +143,7 @@ check_stow_symlinks() {
         pkg_has_link=1
         break
       fi
-    done < <(command find "$HOME" -maxdepth 6 -type l -print0 2>/dev/null)
+    done < <(command find "$HOME" -type l -print0 2>/dev/null)
 
     if [[ "$pkg_has_link" -eq 0 ]]; then
       warn "Package '$pkg' does not appear to be stowed (no active symlink found)"
