@@ -81,7 +81,8 @@ sync_packages() {
   local tmp
 
   log "Generating packages/packages.txt..."
-  tmp="$(mktemp)"
+  tmp="$(mktemp "$PACKAGES_DIR/.packages.XXXXXX")"
+  chmod 644 "$tmp"
   if pacman -Qqen > "$tmp"; then
     command mv -f "$tmp" "$PACKAGES_DIR/packages.txt"
     ok "packages.txt updated ($(wc -l < "$PACKAGES_DIR/packages.txt") packages)"
@@ -107,7 +108,8 @@ sync_packages() {
     command rm -f "$raw"
     warn "Failed to generate aur-packages.txt (pacman -Qqem failed) — existing file left untouched"
   else
-    tmp="$(mktemp)"
+    tmp="$(mktemp "$PACKAGES_DIR/.aur-packages.XXXXXX")"
+    chmod 644 "$tmp"
 
     # grep -v returns:
     #   0 = at least one package remains after filtering
