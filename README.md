@@ -46,11 +46,11 @@ Key component versions this configuration is tested against. Hyprland configurat
 
 | Component | Version |
 | --------- | ------- |
-| Kernel    | 7.2.6   |
+| Kernel    | 7.2.11  |
 | Hyprland  | 0.56.2  |
 | Hyprlock  | 0.9.6   |
 | Waybar    | 0.15.0  |
-| Kitty     | 0.48.2  |
+| Kitty     | 0.49.2  |
 | Rofi      | 2.0.0   |
 | Dunst     | 1.13.2  |
 
@@ -163,6 +163,8 @@ dotfiles/
 │   └── status.sh                   # Health-check for the whole setup
 │
 ├── system/                         # Files requiring root — installed via install.sh
+│   ├── nsswitch/
+│   │   └── nsswitch.conf           → /etc/nsswitch.conf
 │   ├── pacman/
 │   │   └── pacman.conf             → /etc/pacman.conf
 │   ├── sddm/
@@ -211,6 +213,7 @@ Managed via `scripts/system-files.conf`. Only modified files are tracked — the
 
 | File             | Source in repo                                 | Installed to                                                     |
 | ---------------- | ---------------------------------------------- | ---------------------------------------------------------------- |
+| nsswitch         | `system/nsswitch/nsswitch.conf`                | `/etc/nsswitch.conf`                                             |
 | Pacman config    | `system/pacman/pacman.conf`                    | `/etc/pacman.conf`                                               |
 | SDDM config      | `system/sddm/sddm.conf`                        | `/etc/sddm.conf`                                                 |
 | SDDM custom.conf | `system/sddm-theme/silent/configs/custom.conf` | `/usr/share/sddm/themes/silent/configs/`                         |

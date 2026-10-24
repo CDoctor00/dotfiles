@@ -10,6 +10,8 @@ btrfs-progs
 cage
 calf
 clblast
+cups
+cups-filters
 dbeaver
 discord
 docker
@@ -29,6 +31,7 @@ go
 gst-libav
 gst-plugins-ugly
 gvfs
+hplip
 htop
 hyprland
 hyprlock
@@ -49,6 +52,7 @@ network-manager-applet
 networkmanager
 noto-fonts
 noto-fonts-emoji
+nss-mdns
 ntfs-3g
 obsidian
 otf-font-awesome
@@ -61,12 +65,16 @@ pipewire-pulse
 qbittorrent
 ripgrep
 rofi
+sane
+sane-airscan
 sbc
 sddm
+simple-scan
 smartmontools
 speedtest-cli
 sqlitebrowser
 stow
+system-config-printer
 telegram-desktop
 thunar
 thunar-archive-plugin

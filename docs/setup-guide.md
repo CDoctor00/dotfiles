@@ -70,7 +70,12 @@ sudo systemctl enable --now bluetooth
 
 # Audio (user service)
 systemctl --user enable --now pipewire pipewire-pulse wireplumber
+
+# Printing and network device discovery
+sudo systemctl enable --now cups avahi-daemon
 ```
+
+> `/etc/nsswitch.conf` is installed by `install.sh --system-only` and adds `mdns_minimal [NOTFOUND=return]` to the `hosts:` line, which lets the system resolve `.local` names via Avahi (needed to discover the network printer/scanner).
 
 ---
 
@@ -104,6 +109,11 @@ Some things cannot be automated:
   git config --global user.name "your name"
   git config --global user.email "your@email.com"
   ```
+- **Printer (HP Envy 6400)** — find the printer IP, then:
+  ```bash
+  hp-setup -i <printer_ip>
+  ```
+  When asked for a location description, press Enter (answering `q` aborts the setup without creating the queue). Verify scanning with `scanimage -L`.
 
 ---
 

@@ -74,6 +74,19 @@ Packages marked `(AUR)` come from the Arch User Repository; everything else is i
 
 ---
 
+## Printing & Scanning
+
+| Application     | Package                 | Description                                                |
+| --------------- | ----------------------- | ---------------------------------------------------------- |
+| Print Server    | `cups` + `cups-filters` | Print system and filters                                   |
+| HP Drivers      | `hplip`                 | Official HP driver (printing, scanning, `hp-setup`)        |
+| Scanner Backend | `sane` + `sane-airscan` | Scanner support, driverless eSCL/WSD scanning over network |
+| Scan GUI        | `simple-scan`           | Simple graphical scanning app                              |
+| Printer Setup   | `system-config-printer` | Graphical printer configuration                            |
+| Discovery       | `avahi` + `nss-mdns`    | mDNS network printer/scanner discovery                     |
+
+---
+
 ## Communication & Productivity
 
 | Application      | Package            | Description                    |
