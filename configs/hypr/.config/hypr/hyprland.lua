@@ -48,13 +48,12 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("systemctl --user start hyprpolkitagent")
     hl.exec_cmd("dconf load /org/gnome/desktop/interface/ < " .. os.getenv("HOME") .. "/.config/hypr/dconf/interface.conf")
     hl.exec_cmd(os.getenv("HOME") .. "/.config/hypr/scripts/xdg.sh")
-    hl.exec_cmd("dropbox start -i")
     hl.exec_cmd("clipse -listen")
 
     hl.exec_cmd("[workspace 1 silent] discord")
-    hl.exec_cmd("[workspace 1 silent] spotify")
-    hl.exec_cmd("[workspace 2 silent] code")
-    hl.exec_cmd("[workspace 2 silent] firefox")
+    hl.exec_cmd("[workspace 1 silent] firefox")
+    -- hl.exec_cmd("[workspace 1 silent] spotify")
+    -- hl.exec_cmd("[workspace 2 silent] code")
 end)
 
 

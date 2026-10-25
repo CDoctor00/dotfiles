@@ -1,6 +1,5 @@
 arc-gtk-theme
 clipse
-dropbox
 ebgaramond-otf
 insomnia
 localsend-bin
