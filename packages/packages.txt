@@ -43,6 +43,8 @@ inter-font
 iwd
 kitty
 less
+lib32-mesa
+lib32-vulkan-radeon
 libfreeaptx
 linux
 linux-firmware
@@ -73,6 +75,7 @@ simple-scan
 smartmontools
 speedtest-cli
 sqlitebrowser
+steam
 stow
 system-config-printer
 telegram-desktop
