@@ -262,7 +262,7 @@ git push
 git add -A && git commit -m "CHORE: sync"
 ```
 
-> After syncing, a log file is saved to `logs/sync/sync_<timestamp>.log`. Check it if any step reported warnings or errors.
+> After syncing, a log file is saved to `logs/sync/sync_<timestamp>.log`. If any step emitted a warning, the final summary turns yellow and shows the warning count (plus any README version rows left unchanged) — check the output or the log before committing.
 
 ### Checking system health
 

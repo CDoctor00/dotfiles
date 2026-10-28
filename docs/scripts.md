@@ -9,7 +9,7 @@ All three scripts share the same conventions, implemented once and sourced from 
 - `command find`, `command grep`, etc. used internally where relevant, so behavior doesn't change if `find`/`grep` are aliased to other tools (e.g. `fd`, `ripgrep`) in your interactive shell
 - `--help` / `-h` to print usage and exit
 
-> **`status.sh`'s logging is not identical to the other two.** `warn()`/`error()` in `scripts/lib/logging.sh` also need to flag `status.sh`'s "did any check fail" state (`ISSUES_FOUND`, used for its exit code — see below), which `install.sh`/`sync.sh` don't need. Rather than duplicating `warn()`/`error()` for that one script, `logging.sh` calls a hook, `_on_issue()`, that's a no-op everywhere except `status.sh`, which redefines it right after sourcing the library to set `ISSUES_FOUND=1`.
+> **`status.sh` and `sync.sh` hook into the logging.** `warn()`/`error()` in `scripts/lib/logging.sh` call a hook, `_on_issue()`, that's a no-op by default (so `install.sh` ignores it). `status.sh` and `sync.sh` each redefine it right after sourcing the library, rather than duplicating `warn()`/`error()`: `status.sh` sets `ISSUES_FOUND=1` (its "did any check fail" state, used for its exit code — see below), while `sync.sh` increments a `WARN_COUNT` counter shown in its final summary.
 
 ---
 
@@ -18,12 +18,12 @@ All three scripts share the same conventions, implemented once and sourced from 
 `install.sh`, `sync.sh` and `status.sh` each source three files from `scripts/lib/`, in this order:
 
 1. **`colors.sh`** — the ANSI color variables (`RED`, `GREEN`, `YELLOW`, `BLUE`, `CYAN`, `BOLD`, `NC`). No dependencies.
-2. **`logging.sh`** — `ok()`, `warn()`, `error()`, `log()`, `step()`, `init_log()`. Depends on `colors.sh`'s variables, and on the caller having already set `LOG_DIR`/`LOG_FILE`. `warn()`/`error()` call a hook, `_on_issue()` (see the note above), which is a no-op unless the caller redefines it.
+2. **`logging.sh`** — `ok()`, `warn()`, `error()`, `log()`, `step()`, `init_log()`. Depends on `colors.sh`'s variables, and on the caller having already set `LOG_DIR`/`LOG_FILE`. `warn()`/`error()` call a hook, `_on_issue()` (see the note above), which is a no-op unless the caller redefines it (`status.sh` and `sync.sh` do).
 3. **`rotation.sh`** — `rotate_logs()`, plus the `RETENTION_DAYS`/`RETENTION_MIN_KEEP` constants. Depends on `logging.sh`'s `warn()`/`log()`, and on the caller having already set `LOG_DIR`.
 
 This split — one small file per responsibility, rather than a single shared `common.sh` — mirrors the separation already used elsewhere in the repo (e.g. `docs/managing.md` vs `docs/scripts.md`). None of these three files impose their own `set -e`/`set -o pipefail`: `status.sh` intentionally doesn't use them, so the shared library stays neutral and lets each script decide.
 
-If you're adding a new maintenance script and want the same conventions, source the three files in the order above (after setting `LOG_DIR`/`LOG_FILE`), and only define `_on_issue()` if the script needs to track its own failure state the way `status.sh` does.
+If you're adding a new maintenance script and want the same conventions, source the three files in the order above (after setting `LOG_DIR`/`LOG_FILE`), and only define `_on_issue()` if the script needs to track warnings/failures the way `status.sh` (exit code) and `sync.sh` (summary counter) do.
 
 ---
 
@@ -96,11 +96,13 @@ Pulls the running system's state back into the repo: refreshes package lists, co
 
 **System files** (`sync_system_files`) — reads `scripts/system-files.conf` and copies each real system file back into its repo location (the reverse direction of `install.sh`'s system files step). Unlike `install.sh`, this direction does not create a `.bak` of the repo copy before overwriting it — the repo file is expected to be tracked by git, so its history is the backup.
 
-**Versions** (`update_versions`) — reads the currently installed versions of Kernel, Hyprland, Hyprlock, Waybar, Kitty, Rofi, and Dunst directly from each tool's own version output, then rewrites the matching rows in the `## Versions` table in `README.md` via `sed`. Any tool that can't be detected (not installed, unexpected version string) is skipped with a warning — its row in the README is left untouched rather than blanked.
+**Versions** (`update_versions`) — reads the currently installed versions of Kernel, Hyprland, Hyprlock, Waybar, Kitty, Rofi, and Dunst directly from each tool's own version output, then rewrites the matching rows in the `## Versions` table in `README.md` via `sed`. Any tool that can't be detected (not installed, unexpected version string) is skipped with a warning — its row in the README is left untouched rather than blanked. A row that doesn't exist in the README table (renamed or removed) is also reported as a warning, rather than being silently "updated" to nothing. Every component that couldn't be updated for either reason is listed in the final summary (see Logging below), so a failed detection doesn't get lost among the other output.
 
 ### Logging
 
 Every run writes to `logs/sync/sync_<timestamp>.log`, with automatic rotation as described above.
+
+**Final summary and warnings.** Every `[WARN]` emitted during the run, from any phase (package lists, system files, versions), is counted. If there were none, the summary shows the green `Sync complete!` banner. Otherwise it turns yellow and reads `Sync complete with N warning(s)`, followed by the list of README version rows that were left unchanged (if any) and a reminder to review the warnings before committing. The counter is a total, not per phase: it tells you _that_ something needs a look, and the warnings above (or the log) tell you _what_. The exit code is always `0` on completion — warnings never change it, since the commit that follows is manual; only a hard error (e.g. a missing `system-files.conf`) stops the run with exit `1`.
 
 ---
 

@@ -36,6 +36,15 @@ source "$SCRIPTS_DIR/lib/logging.sh"
 # shellcheck source=scripts/lib/rotation.sh
 source "$SCRIPTS_DIR/lib/rotation.sh"
 
+# sync.sh does not abort on warnings, so count them to surface in summary().
+# This overrides the no-op _on_issue() from logging.sh (same mechanism as
+# status.sh, which uses it to set ISSUES_FOUND). Plain assignment rather than
+# ((WARN_COUNT++)), which returns non-zero when the value is 0 and would
+# abort the script under set -e.
+WARN_COUNT=0
+VERSION_FAILURES=()
+_on_issue() { WARN_COUNT=$((WARN_COUNT + 1)); }
+
 # AUR packages installed by the bootstrap process — excluded from aur-packages.txt
 AUR_EXCLUDE=(yay yay-bin paru paru-bin)
 
@@ -164,6 +173,28 @@ sync_system_files() {
 }
 
 # ── Component versions ────────────────────────────────────────────────────────
+# _set_version LABEL VALUE
+# Updates one row of the "## Versions" table in the README. Warns (and records
+# LABEL in VERSION_FAILURES, shown in summary()) if the version was not
+# detected OR if the row does not exist in the README: sed -i silently does
+# nothing when its pattern doesn't match, so without the grep check a renamed
+# or removed row would still be reported as "ok".
+_set_version() {
+  local label="$1" value="$2"
+  if [[ -z "$value" ]]; then
+    warn "$label version not detected, skipping"
+    VERSION_FAILURES+=("$label")
+    return 0
+  fi
+  if ! command grep -q "^| $label " "$README"; then
+    warn "$label row not found in README table, nothing updated"
+    VERSION_FAILURES+=("$label")
+    return 0
+  fi
+  sed -i "s/^| $label .*$/| $(printf '%-9s' "$label") | $(printf '%-7s' "$value") |/" "$README"
+  ok "$label → $value"
+}
+
 update_versions() {
   step "Updating component versions in README"
 
@@ -232,62 +263,31 @@ update_versions() {
 
   log "Detected versions — Kernel: ${kernel:-n/a}, Hyprland: ${hyprland:-n/a}, Hyprlock: ${hyprlock:-n/a}, Waybar: ${waybar:-n/a}, Kitty: ${kitty:-n/a}, Rofi: ${rofi:-n/a}, Dunst: ${dunst:-n/a}"
 
-  if [[ -n "$kernel" ]]; then
-    sed -i "s/^| Kernel    |.*$/| Kernel    | $(printf '%-7s' "$kernel") |/" "$README"
-    ok "Kernel → $kernel"
-  else
-    warn "Kernel version not detected, skipping"
-  fi
-
-  if [[ -n "$hyprland" ]]; then
-    sed -i "s/^| Hyprland  |.*$/| Hyprland  | $(printf '%-7s' "$hyprland") |/" "$README"
-    ok "Hyprland → $hyprland"
-  else
-    warn "Hyprland version not detected, skipping"
-  fi
-
-  if [[ -n "$hyprlock" ]]; then
-    sed -i "s/^| Hyprlock  |.*$/| Hyprlock  | $(printf '%-7s' "$hyprlock") |/" "$README"
-    ok "Hyprlock → $hyprlock"
-  else
-    warn "Hyprlock version not detected, skipping"
-  fi
-
-  if [[ -n "$waybar" ]]; then
-    sed -i "s/^| Waybar    |.*$/| Waybar    | $(printf '%-7s' "$waybar") |/" "$README"
-    ok "Waybar → $waybar"
-  else
-    warn "Waybar version not detected, skipping"
-  fi
-
-  if [[ -n "$kitty" ]]; then
-    sed -i "s/^| Kitty     |.*$/| Kitty     | $(printf '%-7s' "$kitty") |/" "$README"
-    ok "Kitty → $kitty"
-  else
-    warn "Kitty version not detected, skipping"
-  fi
-
-  if [[ -n "$rofi" ]]; then
-    sed -i "s/^| Rofi      |.*$/| Rofi      | $(printf '%-7s' "$rofi") |/" "$README"
-    ok "Rofi → $rofi"
-  else
-    warn "Rofi version not detected, skipping"
-  fi
-
-  if [[ -n "$dunst" ]]; then
-    sed -i "s/^| Dunst     |.*$/| Dunst     | $(printf '%-7s' "$dunst") |/" "$README"
-    ok "Dunst → $dunst"
-  else
-    warn "Dunst version not detected, skipping"
-  fi
+  _set_version "Kernel"   "$kernel"
+  _set_version "Hyprland" "$hyprland"
+  _set_version "Hyprlock" "$hyprlock"
+  _set_version "Waybar"   "$waybar"
+  _set_version "Kitty"    "$kitty"
+  _set_version "Rofi"     "$rofi"
+  _set_version "Dunst"    "$dunst"
 }
 
 # ── Summary ───────────────────────────────────────────────────────────────────
 summary() {
   echo ""
-  echo -e "${BOLD}${GREEN}════════════════════════════════════════${NC}"
-  echo -e "${BOLD}${GREEN}  Sync complete!${NC}"
-  echo -e "${BOLD}${GREEN}════════════════════════════════════════${NC}"
+  if [[ "$WARN_COUNT" -eq 0 ]]; then
+    echo -e "${BOLD}${GREEN}════════════════════════════════════════${NC}"
+    echo -e "${BOLD}${GREEN}  Sync complete!${NC}"
+    echo -e "${BOLD}${GREEN}════════════════════════════════════════${NC}"
+  else
+    echo -e "${BOLD}${YELLOW}════════════════════════════════════════${NC}"
+    echo -e "${BOLD}${YELLOW}  Sync complete with $WARN_COUNT warning(s)${NC}"
+    echo -e "${BOLD}${YELLOW}════════════════════════════════════════${NC}"
+    if [[ ${#VERSION_FAILURES[@]} -gt 0 ]]; then
+      echo -e "  ${YELLOW}README rows left unchanged:${NC} ${VERSION_FAILURES[*]}"
+    fi
+    echo -e "  ${YELLOW}Review the warnings above or in the log before committing.${NC}"
+  fi
   echo ""
   echo -e "  ${CYAN}Next step:${NC}"
   echo -e "  • ${BOLD}git add -A && git commit -m 'CHORE: sync'${NC}"
