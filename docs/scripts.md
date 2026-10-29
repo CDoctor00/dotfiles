@@ -29,11 +29,11 @@ If you're adding a new maintenance script and want the same conventions, source 
 
 ## Quick reference
 
-| Script       | Purpose                                       | Flags                                                                                                                                                                                                             | Needs sudo                                | Stops on running system?  |
-| ------------ | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- | ------------------------- |
-| `install.sh` | Deploy the repo onto a system                 | `--packages-only` `--symlinks-only` `--root-bashrc-only` `--link-scripts-only` `--fonts-only` `--system-only` `--unstow-only` `--dry-run` (the `*-only` flags are combinable, except `--unstow-only` — see below) | Yes (packages, root bashrc, system files) | No — writes/changes files |
-| `sync.sh`    | Pull the running system's state into the repo | `--packages-only` `--system-only` `--versions-only`                                                                                                                                                               | Yes (system files)                        | No — writes into the repo |
-| `status.sh`  | Read-only health-check, no writes             | none required; optionally pass binary names to override step 3                                                                                                                                                    | No                                        | No — diagnostic only      |
+| Script       | Purpose                                       | Flags                                                                                                                                                                                                                               | Needs sudo                                          | Stops on running system?  |
+| ------------ | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- | ------------------------- |
+| `install.sh` | Deploy the repo onto a system                 | `--packages-only` `--symlinks-only` `--root-bashrc-only` `--link-scripts-only` `--fonts-only` `--system-only` `--services-only` `--unstow-only` `--dry-run` (the `*-only` flags are combinable, except `--unstow-only` — see below) | Yes (packages, root bashrc, system files, services) | No — writes/changes files |
+| `sync.sh`    | Pull the running system's state into the repo | `--packages-only` `--system-only` `--versions-only`                                                                                                                                                                                 | Yes (system files)                                  | No — writes into the repo |
+| `status.sh`  | Read-only health-check, no writes             | none required; optionally pass binary names to override step 3                                                                                                                                                                      | No                                                  | No — diagnostic only      |
 
 Run any script with no flags for its full behavior; each flag narrows it to a single phase.
 
@@ -41,7 +41,7 @@ Run any script with no flags for its full behavior; each flag narrows it to a si
 
 ## install.sh
 
-Deploys the repo onto a system: installs packages, creates Stow symlinks, installs system-level files, and a few smaller housekeeping steps.
+Deploys the repo onto a system: installs packages, creates Stow symlinks, installs system-level files, enables the services the desktop needs, and a few smaller housekeeping steps. It is designed to be re-run safely: already-installed packages are skipped, and a step that fails is reported in the final summary instead of aborting the whole run (see [Final summary](#final-summary-and-issues)).
 
 ```bash
 ./scripts/install.sh                        # full installation
@@ -51,6 +51,7 @@ Deploys the repo onto a system: installs packages, creates Stow symlinks, instal
 ./scripts/install.sh --link-scripts-only     # link scripts/*.sh into ~/.local/bin only
 ./scripts/install.sh --fonts-only            # refresh the font cache only
 ./scripts/install.sh --system-only           # install /etc and /usr files only (needs sudo)
+./scripts/install.sh --services-only         # enable systemd services only (needs sudo)
 ./scripts/install.sh --unstow-only           # remove all Stow symlinks (undo, repo files untouched)
 ./scripts/install.sh --dry-run               # preview every command without applying it
 ```
@@ -59,9 +60,13 @@ Deploys the repo onto a system: installs packages, creates Stow symlinks, instal
 
 ### What each phase does
 
-**Packages** (`install_packages`) — runs `pacman -Syu`, installs everything listed in `packages/packages.txt` via `pacman`, then installs everything in `packages/aur-packages.txt` via an AUR helper. If no AUR helper (`yay` or `paru`) is found, `install.sh` builds and installs `yay` from source automatically. Packages listed in `NON_BLOCKING_AUR` (currently just `spicetify-cli`) are allowed to fail without stopping the script — everything else aborts the run on failure.
+**Packages** (`install_packages`) — runs, in this order:
 
-**Stow** (`stow_packages`) — stows every directory under `configs/` (package list is auto-discovered, nothing to register manually). Before stowing a package, any real file that would conflict with the incoming symlink is moved to `~/.dotfiles-backup/<timestamp>/<package>/<relative path>`, unless that file already resolves inside the repo itself (in which case it's left alone, since it's Stow's own symlink target). This backup step is separate from the manual `.bak` convention described in `managing.md` — it's automatic and only triggers on a real Stow conflict.
+1. **multilib check** (`ensure_multilib`) — if `[multilib]` is still commented out in `/etc/pacman.conf` (a fresh `archinstall` ships that way), uncomments the `[multilib]` header and its `Include` line, and nothing else (`[multilib-testing]` is left alone). Idempotent: does nothing if already enabled, and warns if the section doesn't exist at all. It has to happen _before_ the first sync because `packages.txt` contains `lib32-*` packages and `steam`, and pacman aborts the **entire** transaction on a single unknown target — nothing gets installed and the run looks like a wall of "is up to date — skipping" warnings. The repo's own `pacman.conf` replaces this file later, in the system files phase.
+2. `pacman -Syu`, then everything in `packages/packages.txt` via `pacman`. If this step fails the run **stops** with an explanatory error (everything after it depends on those packages).
+3. Everything in `packages/aur-packages.txt` via an AUR helper. If no AUR helper (`yay` or `paru`) is found, `install.sh` builds and installs `yay` from source automatically. **A failing AUR package never stops the run**: its last 8 lines of output are printed, the full output is appended to the log, the failure is recorded for the final summary, and the next package is attempted. (This replaces the old `NON_BLOCKING_AUR` list, which let only `spicetify-cli` fail.)
+
+**Stow** (`stow_packages`) — stows every directory under `configs/` (package list is auto-discovered, nothing to register manually), always with `--no-folding` (`STOW_FLAGS` in the script): Stow links each file individually and never replaces a whole directory with a single symlink. This keeps runtime data that apps write next to their config (e.g. clipse's `clipboard_history.json`, `clipse.log`, `tmp_files/`) in the real directory under `$HOME` instead of inside the repo, regardless of whether the directory existed before the first install — see [`docs/managing.md`](managing.md#tree-folding---no-folding). A package whose `stow` call fails is reported in the final summary. Before stowing a package, any real file that would conflict with the incoming symlink is moved to `~/.dotfiles-backup/<timestamp>/<package>/<relative path>`, unless that file already resolves inside the repo itself (in which case it's left alone, since it's Stow's own symlink target). This backup step is separate from the manual `.bak` convention described in `managing.md` — it's automatic and only triggers on a real Stow conflict.
 
 **Unstow** (`unstow_packages`) — the inverse of the Stow phase: removes the Stow symlinks for every package under `configs/`, leaving the repo files themselves untouched. Only runs via the explicit `--unstow-only` flag, never as part of a full install — it's an opt-in undo, not a step in the normal deploy sequence. Don't combine it with `--symlinks-only` in the same run; the two are contradictory (one stows, the other immediately un-stows).
 
@@ -69,13 +74,34 @@ Deploys the repo onto a system: installs packages, creates Stow symlinks, instal
 
 **System files** (`install_system_files`) — reads `scripts/system-files.conf` and copies each repo file to its real destination, backing up the existing destination file as `<dest>.bak` first (directories are copied recursively without a backup step).
 
+**Services** (`enable_services`) — enables (does **not** start) the services the desktop needs; they come up at the next boot:
+
+| Scope  | Units                                       |
+| ------ | ------------------------------------------- |
+| system | `bluetooth`, `cups`                         |
+| user   | `pipewire`, `pipewire-pulse`, `wireplumber` |
+| system | `sddm` (the display manager)                |
+
+Only `enable` is used, never `--now`: a reboot follows the installation anyway, and starting `sddm` from the TTY running the installer would take over the screen and leave the script without a terminal (so you would never see the final summary). All the units above are **required** by the setup, so a unit that doesn't exist (its package isn't installed) or can't be enabled is recorded in the final summary. The user services need a login session (a TTY login is fine); if they fail, re-run `./scripts/install.sh --services-only` from a regular login. The lists are the `SYSTEM_SERVICES`, `USER_SERVICES` and `DISPLAY_MANAGER` variables at the top of the script.
+
+Deliberately **not** handled by the installer, because they are optional or machine-specific: `avahi-daemon` (mDNS: it announces the machine on the local network; needed only for scanner discovery and `.local` names, see the manual steps in [`docs/setup-guide.md`](setup-guide.md#5-manual-steps)), `fstrim.timer` (depends on the disk and on LUKS, see [`docs/setup-guide.md`](setup-guide.md#4-optional-hardening)) and `NetworkManager` (already enabled by `archinstall`).
+
 **Personal scripts** (`install_scripts`) — makes every `scripts/*.sh` executable and symlinks it into `~/.local/bin/<name>` (without the `.sh` extension). This means `status.sh` becomes runnable as `status` from anywhere once `~/.local/bin` is in `PATH`.
 
 **Font cache** (`refresh_fonts`) — runs `fc-cache -fv`.
 
+### Final summary and issues
+
+Anything that fails without stopping the run — an AUR package, a Stow package, a service — is added to an internal list. At the end:
+
+- **Nothing failed:** green `Installation complete!` banner.
+- **Something failed:** yellow `Installation complete with N issue(s)` banner, followed by the list (e.g. `AUR: <package>`, `Service: wireplumber.service`), which is also appended to the log. Fix the cause and re-run `./scripts/install.sh`; whatever is already installed is skipped.
+
+Unlike `sync.sh`, the counter tracks real failures only, not every `[WARN]` — informational warnings such as "Backed up existing: …" do not turn the banner yellow. As with `sync.sh`, the exit code is `0` on completion; only a hard stop (not Arch, run as root, `pacman` failing on the official package list, missing `system-files.conf`) exits non-zero.
+
 ### Logging
 
-Every run writes to `logs/install/install_<timestamp>.log`, with automatic rotation as described above — except in `--dry-run` mode, where rotation is skipped along with everything else, since dry-run is meant to leave the filesystem untouched. In `--dry-run` mode, commands are printed instead of executed and nothing is applied. Check the log after any run that reported warnings or errors.
+Every run writes to `logs/install/install_<timestamp>.log`, with automatic rotation as described above — except in `--dry-run` mode, where rotation is skipped along with everything else, since dry-run is meant to leave the filesystem untouched. In `--dry-run` mode, commands are printed instead of executed and nothing is applied. Full AUR build output is appended to the log; the terminal only shows the last lines of a failed package. Check the log after any run that reported warnings or errors.
 
 ---
 

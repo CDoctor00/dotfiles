@@ -10,6 +10,7 @@ This document covers procedures — how to add, remove, and fix things. For what
 
 - [Stow packages](#stow-packages)
   - [The stow command](#the-stow-command)
+  - [Tree folding (`--no-folding`)](#tree-folding---no-folding)
   - [Adding a new package](#adding-a-new-package)
   - [Bash (user + root)](#bash-user--root)
   - [Resolving conflicts](#resolving-conflicts)
@@ -29,18 +30,48 @@ This document covers procedures — how to add, remove, and fix things. For what
 Every Stow operation in this repo uses the same base command — only the package name and an optional flag change:
 
 ```bash
-stow --dir=/home/<user>/.dotfiles/configs --target=/home/<user> <package>
+stow --no-folding --dir=/home/<user>/.dotfiles/configs --target=/home/<user> <package>
 ```
+
+`--no-folding` is what `install.sh` passes too — see [Tree folding](#tree-folding---no-folding) below for why it matters.
 
 > **Note:** Stow does not expand the tilde (`~`) in `--dir` and `--target`. Always use the full absolute path as above, not `~`.
 
 - **Stow a package:** `... <package>`
-- **Remove a package's symlinks (without touching the repo):** add `-D` → `... -D <package>`
+- **Remove a package's symlinks (without touching the repo):** add `-D` → `... -D <package>` (`--no-folding` is not needed for this)
 - **Re-stow after moving/renaming files inside a package:** add `-R` → `... -R <package>`
 
 The sections below use a shortened `stow ... <package>` for brevity — substitute the full command above.
 
 > **Automation note:** `install.sh` automatically detects any directory placed inside `configs/` — you don't need to register package names anywhere. Create the folder, populate it, and run `./scripts/install.sh --symlinks-only`.
+
+### Tree folding (`--no-folding`)
+
+By default Stow _folds_: if the target directory doesn't exist yet, it creates **one symlink for the whole directory** (`~/.config/clipse` → `configs/clipse/.config/clipse`) instead of one symlink per file. If the directory already exists as a real directory, it links the files one by one. So the result depends on what happened first on that machine — and with a folded link, everything the app writes later ends up **inside the repo**.
+
+Real example: clipse stores its clipboard history (`clipboard_history.json`), `clipse.log` and copied images (`tmp_files/`) next to its config. On a machine where clipse had already run before the first stow, only `config.json` and `custom_theme.json` were linked and the runtime data stayed outside the repo. On a freshly installed machine the directory didn't exist, Stow folded it, and every copied password and screenshot started showing up as untracked files in `git status`.
+
+This repo therefore **always stows with `--no-folding`** (`install.sh` does it automatically): Stow creates real directories and links only the files that are in the repo, so the outcome no longer depends on install order.
+
+Consequences worth knowing:
+
+- **Files created directly under `~/.config/<package>/` are not in the repo** — only files that exist under `configs/<package>/` are linked. To track a new file, create it inside the repo (`configs/<package>/.config/<package>/...`) and run `./scripts/install.sh --symlinks-only` to link it.
+- **A package that is already folded stays folded**: Stow considers the existing directory symlink correct and leaves it alone. To convert it (clipse as an example), unstow, move the runtime data out of the repo, and stow again:
+
+  ```bash
+  # 1. Remove the folded directory symlink (repo files are untouched)
+  stow --dir=/home/<user>/.dotfiles/configs --target=/home/<user> -D clipse
+
+  # 2. Recreate the real directory and move the runtime data into it
+  #    (adjust the list to what actually exists; check `git status` afterwards)
+  mkdir -p ~/.config/clipse
+  mv ~/.dotfiles/configs/clipse/.config/clipse/{clipboard_history.json,clipse.log,tmp_files} ~/.config/clipse/
+
+  # 3. Stow again, file by file
+  stow --no-folding --dir=/home/<user>/.dotfiles/configs --target=/home/<user> clipse
+  ```
+
+- **How to check which situation you're in:** `ls -ld ~/.config/clipse` should show a real directory (`drwx…`), and `ls -l ~/.config/clipse` should show symlinks only for the files that live in the repo. A `lrwx…` on the directory itself means it is folded.
 
 ### Adding a new package
 
@@ -51,15 +82,15 @@ mkdir -p ~/.dotfiles/configs/<new_package>/.config/<new_package>
 # 2. Move the existing config from the system into the repo
 mv ~/.config/<new_package> ~/.dotfiles/configs/<new_package>/.config/
 
-# 3. Create the symlink with stow
-stow --dir=/home/<user>/.dotfiles/configs --target=/home/<user> <new_package>
+# 3. Create the symlinks with stow (--no-folding: link files, not the whole directory)
+stow --no-folding --dir=/home/<user>/.dotfiles/configs --target=/home/<user> <new_package>
 
-# 4. Verify the symlink was created correctly
-ls -ld ~/.config/<new_package>
-# Expected: ~/.config/<new_package> -> /home/<user>/.dotfiles/configs/<new_package>/.config/<new_package>
+# 4. Verify: the directory is real, the files inside are symlinks into the repo
+ls -ld ~/.config/<new_package>      # expected: a real directory (drwx...)
+ls -l  ~/.config/<new_package>      # expected: <file> -> /home/<user>/.dotfiles/configs/<new_package>/.config/<new_package>/<file>
 ```
 
-> Note: use `ls -ld` (not `ls -la`) to inspect the symlink itself — `ls -la` on the path follows the link and lists its target's contents instead.
+> Note: with `--no-folding` the _directory_ is not a symlink — each file in it is. If you ever see `~/.config/<new_package>` itself as a symlink (`lrwx...`), the package is folded: see [Tree folding](#tree-folding---no-folding).
 
 #### Step 5 (conditional): register a critical binary
 
@@ -80,7 +111,7 @@ For files that live directly in `$HOME` (like `.bashrc`):
 ```bash
 mkdir -p ~/.dotfiles/configs/<new_package>
 mv ~/.<new_package>rc ~/.dotfiles/configs/<new_package>/.<new_package>rc
-stow --dir=/home/<user>/.dotfiles/configs --target=/home/<user> <new_package>
+stow --no-folding --dir=/home/<user>/.dotfiles/configs --target=/home/<user> <new_package>
 ```
 
 ### Bash (user + root)
@@ -113,7 +144,7 @@ Stow refuses to create a symlink if the target already exists as a real file. Th
 mv ~/.config/<new_package> ~/.config/<new_package>.bak
 
 # Then stow normally
-stow --dir=/home/<user>/.dotfiles/configs --target=/home/<user> <new_package>
+stow --no-folding --dir=/home/<user>/.dotfiles/configs --target=/home/<user> <new_package>
 ```
 
 ### Removing a package
@@ -168,6 +199,8 @@ The two management approaches have opposite edit flows — it is important not t
 ```
 Edit ~/.config/hypr/hyprland.lua → already reflected in the repo → git commit
 ```
+
+> **Note:** this holds for files that already exist in the repo. A brand-new file created under `~/.config/<package>/` is a real file outside the repo (see [Tree folding](#tree-folding---no-folding)) — create it in `configs/<package>/...` and run `./scripts/install.sh --symlinks-only` instead.
 
 > **Note:** since the Lua migration, `hyprland.lua` is the file Hyprland actually loads.
 
